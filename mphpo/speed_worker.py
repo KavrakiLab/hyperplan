@@ -6,10 +6,9 @@ import ConfigSpace.hyperparameters as CSH
 from .base_worker import BaseWorker
 
 class SpeedWorker(BaseWorker):
-    def compute(self, config, budget, **kwargs):
-        self.configurePlanner(**kwargs)
+    def compute(self, config_id, config, budget, **kwargs):
+        self.configurePlanner(config)
         durations = []
-        budget = kwargs['budget']
         max_time = budget
         while budget > 0:
             duration = 0

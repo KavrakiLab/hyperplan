@@ -8,7 +8,7 @@ import hpbandster.core.result as hpres
 from hpbandster.optimizers import BOHB
 from mphpo import SpeedWorker
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 parser = argparse.ArgumentParser(description='Motion Planning Hyperparameter Optimization.')
 parser.add_argument('--min_budget', type=float, default=60,
@@ -39,7 +39,7 @@ host = hpns.nic_name_to_host(args.nic_name)
 
 if args.worker:
     time.sleep(5)    # short artificial delay to make sure the nameserver is already running
-    w = SpeedWorker(sleep_interval=0.5, run_id=args.run_id, host=host)
+    w = SpeedWorker(run_id=args.run_id, host=host)
     w.load_nameserver_credentials(working_directory=args.shared_directory)
     w.run(background=False)
     exit(0)
@@ -55,8 +55,7 @@ ns_host, ns_port = NS.start()
 # Most optimizers are so computationally inexpensive that we can affort to run a
 # worker in parallel to it. Note that this one has to run in the background to
 # not block!
-w = SpeedWorker(sleep_interval=0.5,
-                run_id=args.run_id,
+w = SpeedWorker(run_id=args.run_id,
                 host=host,
                 nameserver=ns_host,
                 nameserver_port=ns_port)

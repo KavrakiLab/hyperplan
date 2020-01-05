@@ -1,3 +1,4 @@
+import os
 import configparser
 from pathlib import Path
 
@@ -23,7 +24,7 @@ class BaseWorker(Worker):
                     raise TypeError(f'Unknown problem type: {type(problem)}')
         else:
             self.problems = \
-                [self.configureAppProblem('/home/mmoll/omplapp/resources/3D/cubicles.cfg')]
+                [self.configureAppProblem(os.environ['HOME'] + '/omplapp/resources/3D/cubicles.cfg')]
 
     @staticmethod
     def configureAppProblem(fname):
@@ -110,12 +111,12 @@ class BaseWorker(Worker):
                 setup.getGeometricComponentStateSpace().setBounds(bounds)
         return setup
 
-    def configurePlanner(self, **kwargs):
+    def configurePlanner(self, config):
         for problem in self.problems:
             si = problem.getSpaceInformation()
-            planner = eval('og.%s(si)' % kwargs['planner'])
+            planner = eval('og.%s(si)' % config['planner'])
             params = planner.params()
-            for param, value in kwargs.items():
+            for param, value in config.items():
                 if params.hasParam(param):
                     params.setParam(param, str(value))
             problem.setPlanner(planner)
