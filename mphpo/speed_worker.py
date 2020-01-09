@@ -8,25 +8,33 @@ from .base_worker import BaseWorker
 class SpeedWorker(BaseWorker):
     def compute(self, config_id, config, budget, **kwargs):
         self.configurePlanner(config)
-        durations = []
-        max_time = budget
+        all_durations = []
+        all_path_lengths = []
+        loss = budget
         while budget > 0:
-            duration = 0
+            durations = []
+            path_lengths = []
             last_solve_time = 0
             for problem in self.problems:
                 problem.clear()
                 start = process_time()
                 if problem.solve(budget):
                     last_solve_time = process_time() - start
-                    duration += last_solve_time
+                    durations.append(last_solve_time)
+                    path_lengths.append(problem.getSolutionPath().length())
                 else:
-                    duration = last_solve_time = max_time
+                    budget = 0
                     break
                 budget -= last_solve_time
-            durations.append(duration)
+            if len(durations) == len(self.problems):
+                all_durations.append(durations)
+                all_path_lengths.append(path_lengths)
 
-        return {'loss': np.quantile(durations, .7),
-                'info': {'budget': budget}}
+        if all_durations:
+            print('sums: ', np.sum(all_durations, axis=1))
+            loss = np.quantile(np.sum(all_durations, axis=1), .7)
+        return {'loss': loss,
+                'info': {'path_lengths': all_path_lengths, 'durations': all_durations}}
 
     @staticmethod
     def get_configspace():

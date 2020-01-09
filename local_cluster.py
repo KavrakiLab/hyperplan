@@ -8,10 +8,11 @@ import hpbandster.core.result as hpres
 from hpbandster.optimizers import BOHB
 from mphpo import SpeedWorker
 
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.INFO)
 
-parser = argparse.ArgumentParser(description='Motion Planning Hyperparameter Optimization.')
-parser.add_argument('--min_budget', type=float, default=60,
+parser = argparse.ArgumentParser(description='Motion Planning Hyperparameter Optimization.',
+                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('--min_budget', type=float, default=6,
                     help='Minimum budget used during the optimization.')
 parser.add_argument('--max_budget', type=float, default=3600,
                     help='Maximum budget used during the optimization.')
@@ -21,13 +22,13 @@ parser.add_argument('--n_workers', type=int, default=2,
                     help='Number of workers to run in parallel.')
 parser.add_argument('--worker', action='store_true',
                     help='Flag to turn this into a worker process')
-parser.add_argument('--run_id', type=str,
+parser.add_argument('--run_id', type=str, default="0",
                     help='A unique id for this optimization run \
                          (e.g., the job id of the cluster\'s scheduler).')
 parser.add_argument('--nic_name', type=str, default='enp0s31f6',
                     help='Which network interface to use for communication.')
 parser.add_argument('--shared_directory', type=str,
-                    default='/home/mmoll/Bubox/archive/mmoll/mark_moll/mphpo/results',
+                    default=os.environ['HOME'] + '/Bubox/archive/mmoll/mark_moll/mphpo/results',
                     help='A directory that is accessible for all processes, e.g. a NFS share.')
 
 
