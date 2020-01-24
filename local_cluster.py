@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 import argparse
 import pickle
@@ -6,9 +7,11 @@ import logging
 import hpbandster.core.nameserver as hpns
 import hpbandster.core.result as hpres
 from hpbandster.optimizers import BOHB
-from mphpo import SpeedWorker
+from mphpo import SpeedWorker, SpeedKinodynamicWorker, OptWorker
 
-#logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
+
+worker_types = {'speed': SpeedWorker, 'speed_kinodynamic': SpeedKinodynamicWorker, 'opt': OptWorker}
 
 parser = argparse.ArgumentParser(description='Motion Planning Hyperparameter Optimization.',
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -30,17 +33,21 @@ parser.add_argument('--nic_name', type=str, default='enp0s31f6',
 parser.add_argument('--shared_directory', type=str,
                     default=os.environ['HOME'] + '/Bubox/archive/mmoll/mark_moll/mphpo/results',
                     help='A directory that is accessible for all processes, e.g. a NFS share.')
-
+parser.add_argument('--type', type=str, choices=worker_types.keys(), default='speed',
+                    help='Type of hyperparmater optimization to perform')
+parser.add_argument('configfile', nargs='+', type=argparse.FileType('r'),
+                    help='configuration file specifying a benchmark problem')
 
 args = parser.parse_args()
 
 # Every process has to lookup the hostname
 host = hpns.nic_name_to_host(args.nic_name)
 
+WorkerType = worker_types[args.type]
 
 if args.worker:
     time.sleep(5)    # short artificial delay to make sure the nameserver is already running
-    w = SpeedWorker(run_id=args.run_id, host=host)
+    w = WorkerType(config_files=args.configfile, run_id=args.run_id, host=host)
     w.load_nameserver_credentials(working_directory=args.shared_directory)
     w.run(background=False)
     exit(0)
@@ -56,15 +63,15 @@ ns_host, ns_port = NS.start()
 # Most optimizers are so computationally inexpensive that we can affort to run a
 # worker in parallel to it. Note that this one has to run in the background to
 # not block!
-w = SpeedWorker(run_id=args.run_id,
-                host=host,
-                nameserver=ns_host,
-                nameserver_port=ns_port)
+w = WorkerType(config_files=args.configfile,
+               run_id=args.run_id,
+               host=host,
+               nameserver=ns_host,
+               nameserver_port=ns_port)
 w.run(background=True)
 
 # Run an optimizer
-# We now have to specify the host, and the nameserver information
-bohb = BOHB(configspace=SpeedWorker.get_configspace(),
+bohb = BOHB(configspace=WorkerType.get_configspace(),
             run_id=args.run_id,
             host=host,
             nameserver=ns_host,
@@ -75,13 +82,8 @@ bohb = BOHB(configspace=SpeedWorker.get_configspace(),
            )
 res = bohb.run(n_iterations=args.n_iterations, min_n_workers=args.n_workers)
 
-# In a cluster environment, you usually want to store the results for later analysis.
-# One option is to simply pickle the Result object
 with open(os.path.join(args.shared_directory, 'results.pkl'), 'wb') as fh:
     pickle.dump(res, fh)
 
-
-# Step 4: Shutdown
-# After the optimizer run, we must shutdown the master and the nameserver.
 bohb.shutdown(shutdown_workers=True)
 NS.shutdown()
