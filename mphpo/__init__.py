@@ -34,4 +34,4 @@
 
 # Author: Mark Moll
 
-from .speed_worker import SpeedWorker, SpeedKinodynamicWorker, OptWorker
+from .worker import SpeedWorker, SpeedKinodynamicWorker, OptWorker

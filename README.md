@@ -9,7 +9,7 @@ optimization package.
 ## Installation
 
 First, build a recent version of [OMPL.app](http://ompl.kavrakilab.org)
-somewhere. Make sure that `ompl_benchmark` is somewhere in the $PATH. 
+somewhere. Make sure that `ompl_benchmark` is somewhere in the $PATH.
 Next run the following commands:
 
     python3 -m venv venv
