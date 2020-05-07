@@ -248,6 +248,9 @@ class SpeedKinodynamicWorker(BaseWorker):
                 'SST',
                 'SyclopEST',
                 'SyclopRRT'])
+        controller = CSH.CategoricalHyperparameter(
+            name='controller',
+            choices=['LQR', 'random'])
         min_control_duration = CSH.UniformIntegerHyperparameter(
             'problem.min_control_duration', lower=1, upper=20, default_value=1, log=True)
         # this is really the difference between max duration and min min duration
@@ -267,7 +270,7 @@ class SpeedKinodynamicWorker(BaseWorker):
             'pruning_radius', lower=0.1, upper=100., log=True, default_value=.1)
         selection_radius = CSH.UniformFloatHyperparameter(
             'selection_radius', lower=0.1, upper=100., log=True, default_value=.2)
-        cs.add_hyperparameters([planner, min_control_duration, max_control_duration,
+        cs.add_hyperparameters([planner, controller, min_control_duration, max_control_duration,
                                 propagation_step_size, rnge,
                                 intermediate_states, goal_bias, border_fraction,
                                 pruning_radius, selection_radius])
