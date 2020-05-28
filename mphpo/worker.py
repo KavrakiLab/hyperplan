@@ -219,14 +219,17 @@ class SpeedWorker(BaseWorker):
 class SpeedKinodynamicWorker(BaseWorker):
     def __init__(self, config_files, *args, **kwargs):
         super().__init__(config_files,
-                         {'path_length': 'solution length REAL',
-                          'goal_distance': 'solution difference REAL'},
+                         {'time': 'time REAL',
+                          'path_length': 'solution length REAL',
+                          'goal_distance': 'solution difference REAL',
+                          'solution_segments': 'solution segments REAL'},
                          *args, **kwargs)
 
     def loss(self, budget, results):
-        # path length (=duration in seconds) + square of goal distance
-        l = [np.array(pl) + np.array(gd)**2
-             for pl, gd in zip(results['path_length'], results['goal_distance'])]
+        # planning time + path length (=duration in seconds) + square of goal distance
+        l = [np.array(t) + np.array(pl) + np.array(gd)**2
+             for t, pl, gd in
+             zip(results['time'], results['path_length'], results['goal_distance'])]
         return np.sum([quantile_with_fallback(ql, budget) for ql in l])
 
     def progress_loss(self, budget, progress_data):
@@ -249,7 +252,7 @@ class SpeedKinodynamicWorker(BaseWorker):
                 'SyclopEST',
                 'SyclopRRT'])
         controller = CSH.CategoricalHyperparameter(
-            name='controller',
+            name='problem.controller',
             choices=['LQR', 'random'])
         min_control_duration = CSH.UniformIntegerHyperparameter(
             'problem.min_control_duration', lower=1, upper=20, default_value=1, log=True)
