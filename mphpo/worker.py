@@ -48,6 +48,8 @@ import ConfigSpace.hyperparameters as CSH
 
 def quantile_with_fallback(x, fallback, q=.7):
     return np.quantile(x, q) if len(x) > 0 else fallback
+def nanquantile_with_fallback(x, fallback, q=.7):
+    return np.nanquantile(x, q) if len(x) > 0 else fallback
 
 class BaseWorker(Worker, ABC):
     LOG_PROPERTIES_REGEXP = re.compile(
@@ -230,7 +232,7 @@ class SpeedKinodynamicWorker(BaseWorker):
         l = [np.array(t) + np.array(pl) + np.array(gd)**2
              for t, pl, gd in
              zip(results['time'], results['path_length'], results['goal_distance'])]
-        return np.sum([quantile_with_fallback(ql, budget) for ql in l])
+        return np.sum([nanquantile_with_fallback(ql, budget) for ql in l])
 
     def progress_loss(self, budget, progress_data):
         raise Exception('Not implemented for this class')
