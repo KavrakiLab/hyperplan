@@ -222,7 +222,7 @@ class SpeedKinodynamicWorker(BaseWorker):
                          {'time': 'time REAL',
                           'path_length': 'solution length REAL',
                           'goal_distance': 'solution difference REAL',
-                          'solution_segments': 'solution segments REAL'},
+                          'solution_segments': 'solution segments INTEGER'},
                          *args, **kwargs)
 
     def loss(self, budget, results):
@@ -236,7 +236,7 @@ class SpeedKinodynamicWorker(BaseWorker):
         raise Exception('Not implemented for this class')
 
     def duration_runs(self, budget):
-        return budget, 10
+        return budget, 0
 
     @staticmethod
     def get_configspace():
