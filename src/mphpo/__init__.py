@@ -34,4 +34,9 @@
 
 # Author: Mark Moll
 
-from .worker import SpeedWorker, SpeedKinodynamicWorker, OptWorker
+import numpy as np
+
+def quantile_with_fallback(x, fallback, q=.7):
+    return np.quantile(x, q) if len(x) > 0 else fallback
+def nanquantile_with_fallback(x, fallback, q=.7):
+    return np.nanquantile(x, q) if len(x) > 0 else fallback

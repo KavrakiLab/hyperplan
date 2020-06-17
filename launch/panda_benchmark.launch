@@ -1,0 +1,39 @@
+<launch>
+  <!-- benchmark options file -->
+  <arg name="bench_opts"/>
+
+  <!-- Load robot settings -->
+  <include file="$(find panda_moveit_config)/launch/planning_context.launch">
+    <arg name="load_robot_description" value="true"/>
+  </include>
+
+  <!-- Load warehouse containing scenes and queries to benchmark -->
+  <param name="warehouse_port" value="33829"/>
+  <param name="warehouse_host" value="localhost"/>
+  <param name="warehouse_plugin" value="warehouse_ros_mongo::MongoDatabaseConnection"/>
+  <node name="$(anon mongo_wrapper_ros)" cwd="ROS_HOME" type="mongo_wrapper_ros.py" pkg="warehouse_ros_mongo">
+    <param name="overwrite" value="false"/>
+    <param name="database_path" value="$(find mphpo)/examples/panda_warehouse_mongo_db" />
+  </node>
+
+
+  <!-- Load all planning pipelines that will be benchmarked -->
+  <group ns="moveit_run_benchmark">
+    <include ns="ompl" file="$(find panda_moveit_config)/launch/planning_pipeline.launch.xml">
+      <arg name="pipeline" value="ompl" />
+    </include>
+
+    <include ns="chomp" file="$(find panda_moveit_config)/launch/planning_pipeline.launch.xml">
+      <arg name="pipeline" value="chomp" />
+    </include>
+
+    <include ns="stomp" file="$(find panda_moveit_config)/launch/planning_pipeline.launch.xml">
+      <arg name="pipeline" value="stomp" />
+    </include>
+  </group>
+
+  <!-- Launch benchmark node -->
+  <node name="moveit_run_benchmark" pkg="moveit_ros_benchmarks" type="moveit_run_benchmark" output="screen" required="true">
+    <rosparam command="load" file="$(arg bench_opts)"/>
+  </node>
+</launch>

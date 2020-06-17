@@ -1,0 +1,18 @@
+benchmark_config:
+    warehouse:
+        host: 127.0.0.1
+        port: 33829
+        scene_name: ObstaclesScene     # Required
+    parameters:
+        name: ObstaclesScenePick1
+        runs: {num_runs}
+        group: panda_arm      # Required
+        timeout: {duration}
+        output_directory: {output_dir}
+        queries: .*
+        start_states: .*
+    planning_pipelines:
+        - name: {pipeline}
+          planners:
+            - {planner_id}
+{planner_config}

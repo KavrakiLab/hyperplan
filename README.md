@@ -8,6 +8,8 @@ optimization package.
 
 ## Installation
 
+### OMPL.app benchmarking
+
 First, build a recent version of [OMPL.app](http://ompl.kavrakilab.org)
 somewhere. Make sure that `ompl_benchmark` is somewhere in the $PATH.
 Next run the following commands:
@@ -15,6 +17,10 @@ Next run the following commands:
     python3 -m venv venv
     source venv/bin/activate
     pip install --isolated -r requirements.txt
+
+### MoveIt benchmarking
+
+TODO
 
 ## Running the optimization
 
