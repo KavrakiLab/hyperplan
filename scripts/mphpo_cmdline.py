@@ -46,7 +46,7 @@ import logging
 import hpbandster.core.nameserver as hpns
 import hpbandster.core.result as hpres
 from hpbandster.optimizers import BOHB
-from mphpo import SpeedWorker, SpeedKinodynamicWorker, OptWorker
+from mphpo import omplapp, robowflex
 
 def default_network_interface():
     operating_system = platform.system()
@@ -69,7 +69,12 @@ def default_network_interface():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
-    worker_types = {'speed': SpeedWorker, 'speed_kinodynamic': SpeedKinodynamicWorker, 'opt': OptWorker}
+    worker_types = {
+        ('omplapp', 'speed'): omplapp.SpeedWorker,
+        ('omplapp', 'speed_kinodynamic'): omplapp.SpeedKinodynamicWorker,
+        ('omplapp', 'opt') : omplapp.OptWorker,
+        ('robowflex', 'speed'): robowflex.SpeedWorker
+    }
 
     parser = argparse.ArgumentParser(description='Motion Planning Hyperparameter Optimization.',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -91,21 +96,23 @@ if __name__ == "__main__":
     parser.add_argument('--shared_directory', type=str,
                         default=os.environ['HOME'] + '/Bubox/archive/mmoll/mark_moll/mphpo/results',
                         help='A directory that is accessible for all processes, e.g. a NFS share.')
-    parser.add_argument('--type', type=str, choices=worker_types.keys(), default='speed',
+    parser.add_argument('--opt', type=str, choices={key[1] for key in worker_types.keys()}, default='speed',
                         help='Type of hyperparameter optimization to perform')
-    parser.add_argument('configfile', nargs='+', type=argparse.FileType('r'),
-                        help='configuration file specifying a benchmark problem')
+    parser.add_argument('--backend', type=str, choices={key[0] for key in worker_types.keys()}, default='omplapp',
+                        help='Backend used for evaluating planner configurations')
+    parser.add_argument('config', nargs='+', type=str,
+                        help='configuration file/directory specifying a benchmark problem')
 
     args = parser.parse_args()
 
     # Every process has to lookup the hostname
     host = hpns.nic_name_to_host(args.nic_name)
 
-    WorkerType = worker_types[args.type]
+    WorkerType = worker_types[(args.backend,args.opt)]
 
     if args.worker:
         time.sleep(5)    # short artificial delay to make sure the nameserver is already running
-        w = WorkerType(config_files=args.configfile, run_id=args.run_id, host=host)
+        w = WorkerType(config_files=args.config, run_id=args.run_id, host=host)
         w.load_nameserver_credentials(working_directory=args.shared_directory)
         w.run(background=False)
         exit(0)
@@ -122,7 +129,7 @@ if __name__ == "__main__":
     # Most optimizers are so computationally inexpensive that we can afford to run a
     # worker in parallel to it. Note that this one has to run in the background to
     # not block!
-    w = WorkerType(config_files=args.configfile,
+    w = WorkerType(config_files=args.config,
                    run_id=args.run_id,
                    host=host,
                    nameserver=ns_host,

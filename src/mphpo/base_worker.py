@@ -52,13 +52,17 @@ class BaseWorker(Worker, ABC):
         r'[\d]+ progress properties for each run\n([\w\s]+)\n[\d]+ runs\n([\w\s.;,+-]+)\n[.]\n')
     MAX_COST = 1e8
 
-    def __init__(self, config_files, selected_properties, *args,
+    def __init__(self, configs, selected_properties, *args,
                  selected_progress_properties={}, **kwargs):
         Worker.__init__(self, *args, **kwargs)
-        self.problems = [fp.read() for fp in config_files]
+        self.initialize_problems(configs)
         self.keep_log_files = True
         self.selected_properties = selected_properties
         self.selected_progress_properties = selected_progress_properties
+
+    @abstractmethod
+    def initialize_problems(self, configs):
+        pass
 
     @abstractmethod
     def loss(self, budget, results):

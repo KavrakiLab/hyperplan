@@ -41,7 +41,11 @@ import ConfigSpace.hyperparameters as CSH
 from . import quantile_with_fallback, nanquantile_with_fallback
 from .base_worker import BaseWorker
 
-class SpeedWorker(BaseWorker):
+class OmplappBaseWorker(BaseWorker):
+    def initialize_problems(self, configs):
+        self.problems = [open(config,'r').read() for config in configs]
+
+class SpeedWorker(OmplappBaseWorker):
     def __init__(self, config_files, *args, **kwargs):
         super().__init__(config_files,
                          {'time': 'time REAL', 'path_length': 'simplified solution length REAL'},
@@ -107,7 +111,7 @@ class SpeedWorker(BaseWorker):
         ])
         return cs
 
-class SpeedKinodynamicWorker(BaseWorker):
+class SpeedKinodynamicWorker(OmplappBaseWorker):
     def __init__(self, config_files, *args, **kwargs):
         super().__init__(config_files,
                          {'time': 'time REAL',
@@ -183,7 +187,7 @@ class SpeedKinodynamicWorker(BaseWorker):
         ])
         return cs
 
-class OptWorker(BaseWorker):
+class OptWorker(OmplappBaseWorker):
     def __init__(self, config_files, *args, **kwargs):
         super().__init__(config_files, {'path_length': 'solution length REAL'},
                          *args,

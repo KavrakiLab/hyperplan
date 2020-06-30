@@ -1,0 +1,12 @@
+- git:
+    uri: git@github.com:KavrakiLab/mphpo.git
+    local-name: mphpo
+    version: master
+- git:
+    uri: git@github.com:KavrakiLab/robowflex.git
+    local-name: robowflex
+    version: master
+-git:
+    uri: git@github.com:KavrakiLab/fetch_ros.git
+    local-name: fetch_ros
+    version: master
