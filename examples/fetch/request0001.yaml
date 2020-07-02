@@ -22,7 +22,7 @@ goal_constraints:
         position: 0.6328322327387069
       - joint_name: wrist_roll_joint
         position: -0.9584235758850088
-planner_id: RRTConnectkConfigDefault
+planner_id: planner
 group_name: arm_with_torso
 num_planning_attempts: 3
 allowed_planning_time: 10

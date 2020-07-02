@@ -27,7 +27,7 @@ workspace_parameters:
     frame_id: ""
   max_corner: [1, 1, 1]
   min_corner: [-1, -1, -1]
-planner_id: RRTConnectkConfigDefault
+planner_id: planner
 group_name: arm_with_torso
 num_planning_attempts: 3
 allowed_planning_time: 10

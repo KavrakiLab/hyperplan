@@ -22,7 +22,7 @@ start_state:
       frame_id: base_link
     name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
     position: [-0.0003661547976419044, 0.03268707960804473, 0.0002160706730618214, 0.006774792825353941, -1.57, 0.06620072154522205, 1.319968022726414, 1.399984845102675, -0.1999907512239805, 1.719859276875177, 1.219980768851769e-06, 1.660135770250502, 2.540539805107045e-05, 0.0498983482937544, 0.04992479113090313]
-planner_id: RRTConnectkConfigDefault
+planner_id: planner
 group_name: arm_with_torso
 num_planning_attempts: 3
 allowed_planning_time: 10
