@@ -5,6 +5,7 @@
 #include <robowflex_library/scene.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/benchmarking.h>
+#include <robowflex_library/io/visualization.h>
 #include <robowflex_library/detail/fetch.h>
 
 using namespace robowflex;
@@ -14,15 +15,17 @@ static const std::string GROUP = "arm_with_torso";
 int main(int argc, char **argv)
 {
     ROS ros(argc, argv);
-    if (argc < 6)
+    if (argc < 5)
     {
         ROS_FATAL_STREAM("Command line syntax:\n\t" << argv[0]
-            << " scene.yaml request.yaml ompl_planning.yaml num_runs time output.log");
+            << " scene.yaml request.yaml ompl_planning.yaml time num_runs output.log");
         exit(-1);
     }
+    bool rviz_only = argc < 7;
     auto fetch = std::make_shared<FetchRobot>();
     fetch->initialize();
-    Benchmarker benchmark;
+
+    ROS_ERROR_STREAM("args" << argc << " " << rviz_only);
     auto scene = std::make_shared<Scene>(fetch);
     if (!scene->fromYAMLFile(argv[1]))
     {
@@ -37,9 +40,34 @@ int main(int argc, char **argv)
         ROS_FATAL("Failed to read file: %s for request", argv[2]);
         exit(-1);
     }
-    request->setAllowedPlanningTime(std::atof(argv[5]));
+    request->setAllowedPlanningTime(std::atof(argv[4]));
     request->setNumPlanningAttempts(1);
-    benchmark.addBenchmarkingRequest(argv[1], scene, planner, request);
-    auto options = Benchmarker::Options(std::atoi(argv[4]));
-    benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>(argv[6])}, options);
+
+    if (rviz_only)
+    {
+        IO::RVIZHelper rviz(fetch);
+        ROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
+        std::cin.get();
+        rviz.updateScene(scene);
+        rviz.updateMarkers();
+        ROS_INFO("Scene displayed! Press enter to plan...");
+        std::cin.get();
+        planning_interface::MotionPlanResponse res = planner->plan(scene, request->getRequest());
+        if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
+            return 1;
+
+        // Publish the trajectory to a topic to display in RViz
+        rviz.updateTrajectory(res);
+
+        ROS_INFO("Press enter to remove the scene.");
+        std::cin.get();
+        rviz.removeScene();
+    }
+    else
+    {
+        Benchmarker benchmark;
+        benchmark.addBenchmarkingRequest(argv[1], scene, planner, request);
+        auto options = Benchmarker::Options(std::atoi(argv[5]));
+        benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>(argv[6])}, options);
+    }
 }

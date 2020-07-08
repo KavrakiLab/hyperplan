@@ -65,8 +65,8 @@ class RobowflexBaseWorker(BaseWorker):
         for scene, request in self.problems:
             try:
                 log_dir = abs_path + '_logs/'
-                subprocess.run(['rosrun', 'mphpo', 'robowflex_helper', str(scene), str(request), abs_path, str(num_runs),
-                                str(duration), log_dir],
+                subprocess.run(['rosrun', 'mphpo', 'robowflex_helper', str(scene), str(request), abs_path, str(duration),
+                                str(num_runs), log_dir],
                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True)
             except subprocess.CalledProcessError as err:
                 logging.warning(
