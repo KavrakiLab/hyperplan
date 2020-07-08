@@ -82,7 +82,6 @@ class RobowflexBaseWorker(BaseWorker):
                 os.remove(log_dir)
 
             log_path = log_dir + str(scene) + '.log'
-            print(log_path)
             results = self.update_results(results, budget, log_path)
 
         return {'loss': self.loss(budget, results), 'info': results}
