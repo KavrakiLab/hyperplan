@@ -25,7 +25,6 @@ int main(int argc, char **argv)
     auto fetch = std::make_shared<FetchRobot>();
     fetch->initialize();
 
-    ROS_ERROR_STREAM("args" << argc << " " << rviz_only);
     auto scene = std::make_shared<Scene>(fetch);
     if (!scene->fromYAMLFile(argv[1]))
     {
@@ -40,6 +39,7 @@ int main(int argc, char **argv)
         ROS_FATAL("Failed to read file: %s for request", argv[2]);
         exit(-1);
     }
+    request->setConfig("planner");
     request->setAllowedPlanningTime(std::atof(argv[4]));
     request->setNumPlanningAttempts(1);
 
@@ -52,15 +52,18 @@ int main(int argc, char **argv)
         rviz.updateMarkers();
         ROS_INFO("Scene displayed! Press enter to plan...");
         std::cin.get();
-        planning_interface::MotionPlanResponse res = planner->plan(scene, request->getRequest());
-        if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
-            return 1;
+        while (true)
+        {
+            planning_interface::MotionPlanResponse res = planner->plan(scene, request->getRequest());
+            if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
+                return 1;
 
-        // Publish the trajectory to a topic to display in RViz
-        rviz.updateTrajectory(res);
+            // Publish the trajectory to a topic to display in RViz
+            rviz.updateTrajectory(res);
 
-        ROS_INFO("Press enter to remove the scene.");
-        std::cin.get();
+            ROS_INFO("Press enter to remove the scene.");
+            std::cin.get();
+        }
         rviz.removeScene();
     }
     else

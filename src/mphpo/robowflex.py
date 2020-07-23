@@ -56,8 +56,15 @@ class RobowflexBaseWorker(BaseWorker):
         duration, num_runs = self.duration_runs(budget)
         results = defaultdict(list)
         planner = config['planner']
-        params = '\n'.join([f'    {key}: {value}' for key, value in config.items() if not key=='planner'])
-        cfg = self.config_template.format(**{'planner':planner, 'params':params})
+        excluded_params = ['planner', 'projection']
+        params = '\n'.join([f'    {key}: {value}' for key, value in config.items()
+                            if not key in excluded_params])
+        if 'projection' in config:
+            projection = 'projection_evaluator: ' + config['projection']
+        else:
+            projection = '# no projection'
+        cfg = self.config_template.format(
+            **{'planner':planner, 'params':params, 'projection': projection})
         cfg_file_handle, abs_path = mkstemp(suffix='.yaml', text=True)
         os.write(cfg_file_handle, cfg.encode())
         os.close(cfg_file_handle)
@@ -112,6 +119,7 @@ class SpeedWorker(RobowflexBaseWorker):
                 'BiEST',
                 'BKPIECE',
                 'EST',
+                'ProjEST',
                 'KPIECE',
                 'LazyPRM',
                 'LBKPIECE',
@@ -119,7 +127,15 @@ class SpeedWorker(RobowflexBaseWorker):
                 'PRM',
                 'RRT',
                 'RRTConnect',
-                'SBL'])
+                'SBL',
+                'STRIDE'])
+        projection = CSH.CategoricalHyperparameter(
+            name='projection',
+            choices=[
+                'joints(torso_lift_joint,shoulder_pan_joint)',
+                'link(wrist_roll_link)'
+            ]
+        )
         max_nearest_neighbors = CSH.UniformIntegerHyperparameter(
             'max_nearest_neighbors', lower=1, upper=20, default_value=8)
         rnge = CSH.UniformFloatHyperparameter(
@@ -128,26 +144,36 @@ class SpeedWorker(RobowflexBaseWorker):
             'intermediate_states', lower=0, upper=1, default_value=0)
         goal_bias = CSH.UniformFloatHyperparameter(
             'goal_bias', lower=0., upper=1., default_value=.05)
-        cs.add_hyperparameters([planner, max_nearest_neighbors, rnge, intermediate_states,
+        cs.add_hyperparameters([planner, projection, max_nearest_neighbors, rnge, intermediate_states,
                                 goal_bias])
 
         cs.add_conditions([
+            CS.OrConjunction(CS.EqualsCondition(projection, planner, 'ProjEST'),
+                             CS.EqualsCondition(projection, planner, 'SBL'),
+                             CS.EqualsCondition(projection, planner, 'KPIECE'),
+                             CS.EqualsCondition(projection, planner, 'BKPIECE'),
+                             CS.EqualsCondition(projection, planner, 'LBKPIECE'),
+                             CS.EqualsCondition(projection, planner, 'PDST')),
             CS.OrConjunction(CS.EqualsCondition(max_nearest_neighbors, planner, 'PRM'),
                              CS.EqualsCondition(max_nearest_neighbors, planner, 'LazyPRM')),
             CS.OrConjunction(CS.EqualsCondition(rnge, planner, 'LazyPRM'),
                              CS.EqualsCondition(rnge, planner, 'RRT'),
                              CS.EqualsCondition(rnge, planner, 'RRTConnect'),
                              CS.EqualsCondition(rnge, planner, 'EST'),
+                             CS.EqualsCondition(rnge, planner, 'ProjEST'),
                              CS.EqualsCondition(rnge, planner, 'BiEST'),
                              CS.EqualsCondition(rnge, planner, 'SBL'),
                              CS.EqualsCondition(rnge, planner, 'KPIECE'),
                              CS.EqualsCondition(rnge, planner, 'BKPIECE'),
                              CS.EqualsCondition(rnge, planner, 'LBKPIECE'),
-                             CS.EqualsCondition(rnge, planner, 'PDST')),
+                             CS.EqualsCondition(rnge, planner, 'PDST'),
+                             CS.EqualsCondition(rnge, planner, 'STRIDE')),
             CS.OrConjunction(CS.EqualsCondition(intermediate_states, planner, 'RRT'),
                              CS.EqualsCondition(intermediate_states, planner, 'RRTConnect')),
             CS.OrConjunction(CS.EqualsCondition(goal_bias, planner, 'RRT'),
                              CS.EqualsCondition(goal_bias, planner, 'EST'),
-                             CS.EqualsCondition(goal_bias, planner, 'KPIECE'))
+                             CS.EqualsCondition(goal_bias, planner, 'ProjEST'),
+                             CS.EqualsCondition(goal_bias, planner, 'KPIECE'),
+                             CS.EqualsCondition(goal_bias, planner, 'STRIDE'))
         ])
         return cs

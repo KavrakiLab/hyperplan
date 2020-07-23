@@ -76,6 +76,15 @@ class BaseWorker(Worker, ABC):
     def duration_runs(self, budget):
         pass
 
+    def offline_loss(self, budget, logfiles):
+        """Helper function to compute the loss function for benchmark log files produced
+           outside of the mphpo framework."""
+
+        results = defaultdict(list)
+        for logfile in logfiles:
+            results = self.update_results(results, budget, logfile)
+        return self.loss(budget, results)
+
     def compute(self, config_id, config, budget, working_directory):
         duration, num_runs = self.duration_runs(budget)
         results = defaultdict(list)
