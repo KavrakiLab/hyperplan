@@ -1,12 +1,12 @@
 /* Author: Mark Moll */
 
 #include <cstdlib>
-#include <robowflex_library/util.h>
-#include <robowflex_library/scene.h>
-#include <robowflex_library/builder.h>
 #include <robowflex_library/benchmarking.h>
-#include <robowflex_library/io/visualization.h>
+#include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
+#include <robowflex_library/io/visualization.h>
+#include <robowflex_library/scene.h>
+#include <robowflex_library/util.h>
 
 using namespace robowflex;
 
@@ -18,7 +18,8 @@ int main(int argc, char **argv)
     if (argc < 5)
     {
         ROS_FATAL_STREAM("Command line syntax:\n\t" << argv[0]
-            << " scene.yaml request.yaml ompl_planning.yaml time num_runs output.log");
+                                                    << " scene.yaml request.yaml ompl_planning.yaml time "
+                                                       "num_runs output.log");
         exit(-1);
     }
     bool rviz_only = argc < 7;
@@ -39,14 +40,15 @@ int main(int argc, char **argv)
         ROS_FATAL("Failed to read file: %s for request", argv[2]);
         exit(-1);
     }
-    request->setConfig("planner");
+    request->getRequest().planner_id = "planner";
     request->setAllowedPlanningTime(std::atof(argv[4]));
     request->setNumPlanningAttempts(1);
 
     if (rviz_only)
     {
         IO::RVIZHelper rviz(fetch);
-        ROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
+        ROS_INFO("RViz Initialized! Press enter to continue (after your RViz is "
+                 "setup)...");
         std::cin.get();
         rviz.updateScene(scene);
         rviz.updateMarkers();

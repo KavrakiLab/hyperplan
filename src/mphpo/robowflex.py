@@ -73,12 +73,10 @@ class RobowflexBaseWorker(BaseWorker):
             try:
                 log_dir = abs_path + '_logs/'
                 subprocess.run(['rosrun', 'mphpo', 'robowflex_helper', str(scene), str(request), abs_path, str(duration),
-                                str(num_runs), log_dir],
-                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True)
+                                str(num_runs), log_dir], check=True)
             except subprocess.CalledProcessError as err:
                 logging.warning(
-                    f'This command terminated with error code {err.returncode}:\n\t{err.cmd}\n'
-                    f'and produced the following output:\n\n{err.output}')
+                    f'This command terminated with error code {err.returncode}:\n\t{err.cmd}')
                 for key in self.selected_properties.keys():
                     results[key].append([budget if key == 'time' else np.nan])
                 for key in self.selected_progress_properties.keys():
@@ -153,7 +151,8 @@ class SpeedWorker(RobowflexBaseWorker):
                              CS.EqualsCondition(projection, planner, 'KPIECE'),
                              CS.EqualsCondition(projection, planner, 'BKPIECE'),
                              CS.EqualsCondition(projection, planner, 'LBKPIECE'),
-                             CS.EqualsCondition(projection, planner, 'PDST')),
+                             CS.EqualsCondition(projection, planner, 'PDST'),
+                             CS.EqualsCondition(projection, planner, 'STRIDE')),
             CS.OrConjunction(CS.EqualsCondition(max_nearest_neighbors, planner, 'PRM'),
                              CS.EqualsCondition(max_nearest_neighbors, planner, 'LazyPRM')),
             CS.OrConjunction(CS.EqualsCondition(rnge, planner, 'LazyPRM'),
