@@ -37,6 +37,11 @@
 import os
 import subprocess
 import logging
+import socket
+import signal
+import psutil
+import time
+import random
 from tempfile import mkstemp
 from collections import defaultdict
 from pathlib import Path
@@ -45,6 +50,29 @@ import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from . import quantile_with_fallback, nanquantile_with_fallback
 from .base_worker import BaseWorker
+
+def is_port_in_use(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(('localhost', port)) == 0
+
+def find_port():
+    while True:
+        port = random.randint(10000, 50000)
+        if not is_port_in_use(port):
+            return port
+
+def kill_child_processes(parent_pid, sig=signal.SIGTERM):
+    try:
+        parent = psutil.Process(parent_pid)
+        print(parent)
+    except psutil.NoSuchProcess:
+        print("parent process not existing")
+        return
+    children = parent.children(recursive=True)
+    print(children)
+    for process in children:
+        print("try to kill child: " + str(process))
+        process.send_signal(sig)
 
 class RobowflexBaseWorker(BaseWorker):
     def initialize_problems(self, configs):
@@ -70,10 +98,23 @@ class RobowflexBaseWorker(BaseWorker):
         os.close(cfg_file_handle)
 
         for scene, request in self.problems:
+            roscore_process = None
+            roscore_pid = None
+            try:
+                port = find_port()
+                roscore_process = subprocess.Popen(['env', f'ROS_MASTER_URI=http://localhost:{port}/',
+                                                    'roscore', '-p', str(port)])
+                roscore_pid = roscore_process.pid  # pid of the roscore process (which has child processes)
+                time.sleep(1.) # wait for roscore to come up
+            except OSError as e:
+                sys.stderr.write('roscore could not be run')
+                raise e
+
             try:
                 log_dir = abs_path + '_logs/'
-                subprocess.run(['rosrun', 'mphpo', 'robowflex_helper', str(scene), str(request), abs_path, str(duration),
-                                str(num_runs), log_dir], check=True)
+                subprocess.run(['env', f'ROS_MASTER_URI=http://localhost:{port}/',
+                                'rosrun', 'mphpo', 'robowflex_helper', str(scene), str(request), abs_path,
+                                str(duration), str(num_runs), log_dir], check=True)
             except subprocess.CalledProcessError as err:
                 logging.warning(
                     f'This command terminated with error code {err.returncode}:\n\t{err.cmd}')
@@ -82,6 +123,10 @@ class RobowflexBaseWorker(BaseWorker):
                 for key in self.selected_progress_properties.keys():
                     results[key].append([self.MAX_COST if key == 'cost' else np.nan])
                 continue
+            if roscore_pid:
+                kill_child_processes(roscore_pid)
+                roscore_process.terminate()
+                roscore_process.wait()
             if not self.keep_log_files:
                 os.remove(abs_path)
                 os.remove(log_dir)
