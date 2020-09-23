@@ -86,7 +86,9 @@ TODO
 
 Find planner configuration that optimizes speed of geometric planning for the Fetch arm and torso using 10 scenes and corresponding motion planning queries:
 
-    ./scripts/mphpo_cmdline.py --n_workers 10 --shared_directory /some/network/drive --backend robowflex examples/fetch
+    # run the following line for every compute node where you have more than 1 worker running
+    if [ `rostopic list |wc -l` == 0 ]; then roscore; fi &
+    ./scripts/mphpo_cmdline.py --n_workers 10 --shared_directory /some/network/drive --backend robowflex examples/fetch &
     # repeat 9 times on worker nodes:
     ./scripts/mphpo_cmdline.py --worker --n_workers 10 --shared_directory /some/network/drive --backend robowflex examples/fetch
 

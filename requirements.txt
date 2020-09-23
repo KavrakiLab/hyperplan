@@ -1,1 +1,4 @@
+wheel
 hpbandster
+matplotlib
+psutil

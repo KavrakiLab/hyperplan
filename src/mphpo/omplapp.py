@@ -48,13 +48,12 @@ class OmplappBaseWorker(BaseWorker):
 class SpeedWorker(OmplappBaseWorker):
     def __init__(self, config_files, *args, **kwargs):
         super().__init__(config_files,
-                         {'time': 'time REAL', 'path_length': 'simplified solution length REAL'},
+                         {'time': 'time REAL', 'path_length': 'simplified solution length REAL', 'goal_distance': 'solution difference REAL'},
                          *args, **kwargs)
 
     def loss(self, budget, results):
-        # skip last run since it is always a timeout with no solution found
-        return np.sum([quantile_with_fallback(length[:-1], budget)
-                       for length in results['time']])
+        return np.sum([quantile_with_fallback(t[:-1], budget + d[-1]*d[-1])
+                       for t,d in zip(results['time'], results['goal_distance'])])
 
     def progress_loss(self, budget, progress_data):
         raise Exception('Not implemented for this class')
@@ -71,6 +70,7 @@ class SpeedWorker(OmplappBaseWorker):
                 'BiEST',
                 'BKPIECE',
                 'EST',
+                'ProjEST',
                 'KPIECE',
                 'LazyPRM',
                 'LBKPIECE',
@@ -78,7 +78,8 @@ class SpeedWorker(OmplappBaseWorker):
                 'PRM',
                 'RRT',
                 'RRTConnect',
-                'SBL'])
+                'SBL',
+                'STRIDE'])
         max_nearest_neighbors = CSH.UniformIntegerHyperparameter(
             'max_nearest_neighbors', lower=1, upper=20, default_value=8)
         rnge = CSH.UniformFloatHyperparameter(
@@ -97,17 +98,21 @@ class SpeedWorker(OmplappBaseWorker):
                              CS.EqualsCondition(rnge, planner, 'RRT'),
                              CS.EqualsCondition(rnge, planner, 'RRTConnect'),
                              CS.EqualsCondition(rnge, planner, 'EST'),
+                             CS.EqualsCondition(rnge, planner, 'ProjEST'),
                              CS.EqualsCondition(rnge, planner, 'BiEST'),
                              CS.EqualsCondition(rnge, planner, 'SBL'),
                              CS.EqualsCondition(rnge, planner, 'KPIECE'),
                              CS.EqualsCondition(rnge, planner, 'BKPIECE'),
                              CS.EqualsCondition(rnge, planner, 'LBKPIECE'),
-                             CS.EqualsCondition(rnge, planner, 'PDST')),
+                             CS.EqualsCondition(rnge, planner, 'PDST'),
+                             CS.EqualsCondition(rnge, planner, 'STRIDE')),
             CS.OrConjunction(CS.EqualsCondition(intermediate_states, planner, 'RRT'),
                              CS.EqualsCondition(intermediate_states, planner, 'RRTConnect')),
             CS.OrConjunction(CS.EqualsCondition(goal_bias, planner, 'RRT'),
                              CS.EqualsCondition(goal_bias, planner, 'EST'),
-                             CS.EqualsCondition(goal_bias, planner, 'KPIECE'))
+                             CS.EqualsCondition(goal_bias, planner, 'ProjEST'),
+                             CS.EqualsCondition(goal_bias, planner, 'KPIECE'),
+                             CS.EqualsCondition(goal_bias, planner, 'STRIDE'))
         ])
         return cs
 
