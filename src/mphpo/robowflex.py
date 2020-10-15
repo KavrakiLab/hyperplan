@@ -78,7 +78,7 @@ class RobowflexBaseWorker(BaseWorker):
     def initialize_problems(self, configs):
         config_dir = Path(configs[0])
         self.config_template = open(config_dir / 'ompl_planning.yaml', 'r').read()
-        self.problems = list(zip(sorted(config_dir.glob('*scene*.yaml')), sorted(config_dir.glob('*request*.yaml'))))
+        self.problems = list(zip(sorted(config_dir.glob('*scene*.yaml')), sorted(config_dir.glob('*request*.yaml'))))[:5]
 
     def compute(self, config_id, config, budget, working_directory):
         duration, num_runs = self.duration_runs(budget)

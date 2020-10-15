@@ -48,12 +48,14 @@ class OmplappBaseWorker(BaseWorker):
 class SpeedWorker(OmplappBaseWorker):
     def __init__(self, config_files, *args, **kwargs):
         super().__init__(config_files,
-                         {'time': 'time REAL', 'path_length': 'simplified solution length REAL', 'goal_distance': 'solution difference REAL'},
+                         {'time': 'time REAL',
+                          'path_length': 'solution length REAL',
+                          'goal_distance': 'solution difference REAL'},
                          *args, **kwargs)
 
     def loss(self, budget, results):
         return np.sum([quantile_with_fallback(t[:-1], budget + d[-1]*d[-1])
-                       for t,d in zip(results['time'], results['goal_distance'])])
+                       for t, d in zip(results['time'], results['goal_distance'])])
 
     def progress_loss(self, budget, progress_data):
         raise Exception('Not implemented for this class')
@@ -124,13 +126,16 @@ class SpeedKinodynamicWorker(OmplappBaseWorker):
                           'goal_distance': 'solution difference REAL',
                           'solution_segments': 'solution segments INTEGER'},
                          *args, **kwargs)
+        self.simplify = 1
+        self.speed = 100
 
     def loss(self, budget, results):
         # planning time + path length (=duration in seconds) + square of goal distance
-        l = [np.array(t) + np.array(pl) + np.array(gd)**2
-             for t, pl, gd in
-             zip(results['time'], results['path_length'], results['goal_distance'])]
-        return np.sum([nanquantile_with_fallback(ql, budget) for ql in l])
+        return np.sum([
+            quantile_with_fallback(
+                np.array(t[:-1]) + np.array(pl[:-1]) / self.speed,
+                budget + d[-1]*d[-1]/(self.speed * self.speed) if np.isfinite(d[-1]) else budget * 2)
+                for t, pl, d in zip(results['time'], results['path_length'], results['goal_distance'])])
 
     def progress_loss(self, budget, progress_data):
         raise Exception('Not implemented for this class')
@@ -140,85 +145,97 @@ class SpeedKinodynamicWorker(OmplappBaseWorker):
 
     @staticmethod
     def get_configspace():
-        cs = CS.ConfigurationSpace()
-        planner = CSH.CategoricalHyperparameter(
-            name='planner',
-            choices=[
-                'EST',
-                'KPIECE',
-                'PDST',
-                'RRT',
-                'SST',
-                'SyclopEST',
-                'SyclopRRT'])
-        controller = CSH.CategoricalHyperparameter(
-            name='problem.controller',
-            choices=['LQR', 'random'])
-        min_control_duration = CSH.UniformIntegerHyperparameter(
-            'problem.min_control_duration', lower=1, upper=20, default_value=1, log=True)
-        # this is really the difference between max duration and min min duration
-        max_control_duration = CSH.UniformIntegerHyperparameter(
-            'problem.max_control_duration', lower=1, upper=100, default_value=1, log=True)
-        propagation_step_size = CSH.UniformFloatHyperparameter(
-            'problem.propagation_step_size', lower=0.1, upper=10., log=True)
-        rnge = CSH.UniformFloatHyperparameter(
-            'range', lower=0.001, upper=10000, log=True)
-        intermediate_states = CSH.UniformIntegerHyperparameter(
-            'intermediate_states', lower=0, upper=1, default_value=0)
-        goal_bias = CSH.UniformFloatHyperparameter(
-            'goal_bias', lower=0., upper=1., default_value=.05)
-        border_fraction = CSH.UniformFloatHyperparameter(
-            'border_fraction', lower=0., upper=1., default_value=.8)
-        pruning_radius = CSH.UniformFloatHyperparameter(
-            'pruning_radius', lower=0.1, upper=100., log=True, default_value=.1)
-        selection_radius = CSH.UniformFloatHyperparameter(
-            'selection_radius', lower=0.1, upper=100., log=True, default_value=.2)
-        cs.add_hyperparameters([planner, controller, min_control_duration, max_control_duration,
-                                propagation_step_size, rnge,
-                                intermediate_states, goal_bias, border_fraction,
-                                pruning_radius, selection_radius])
+        return SpeedWorker.get_configspace()
+    # @staticmethod
+    # def get_configspace():
+    #     cs = CS.ConfigurationSpace()
+    #     planner = CSH.CategoricalHyperparameter(
+    #         name='planner',
+    #         choices=[
+    #             'EST',
+    #             'KPIECE',
+    #             'PDST',
+    #             'RRT',
+    #             'SST',
+    #             'SyclopEST',
+    #             'SyclopRRT'])
+    #     controller = CSH.CategoricalHyperparameter(
+    #         name='problem.controller',
+    #         choices=['LQR', 'random'])
+    #     min_control_duration = CSH.UniformIntegerHyperparameter(
+    #         'problem.min_control_duration', lower=1, upper=20, default_value=1, log=True)
+    #     # this is really the difference between max duration and min min duration
+    #     max_control_duration = CSH.UniformIntegerHyperparameter(
+    #         'problem.max_control_duration', lower=1, upper=100, default_value=1, log=True)
+    #     propagation_step_size = CSH.UniformFloatHyperparameter(
+    #         'problem.propagation_step_size', lower=0.1, upper=10., log=True)
+    #     rnge = CSH.UniformFloatHyperparameter(
+    #         'range', lower=0.001, upper=10000, log=True)
+    #     intermediate_states = CSH.UniformIntegerHyperparameter(
+    #         'intermediate_states', lower=0, upper=1, default_value=0)
+    #     goal_bias = CSH.UniformFloatHyperparameter(
+    #         'goal_bias', lower=0., upper=1., default_value=.05)
+    #     border_fraction = CSH.UniformFloatHyperparameter(
+    #         'border_fraction', lower=0., upper=1., default_value=.8)
+    #     pruning_radius = CSH.UniformFloatHyperparameter(
+    #         'pruning_radius', lower=0.1, upper=100., log=True, default_value=.1)
+    #     selection_radius = CSH.UniformFloatHyperparameter(
+    #         'selection_radius', lower=0.1, upper=100., log=True, default_value=.2)
+    #     cs.add_hyperparameters([planner, controller, min_control_duration, max_control_duration,
+    #                             propagation_step_size, rnge,
+    #                             intermediate_states, goal_bias, border_fraction,
+    #                             pruning_radius, selection_radius])
 
-        cs.add_conditions([
-            CS.EqualsCondition(rnge, planner, 'EST'),
-            CS.OrConjunction(CS.EqualsCondition(goal_bias, planner, 'EST'),
-                             CS.EqualsCondition(goal_bias, planner, 'KPIECE'),
-                             CS.EqualsCondition(goal_bias, planner, 'PDST'),
-                             CS.EqualsCondition(goal_bias, planner, 'RRT'),
-                             CS.EqualsCondition(goal_bias, planner, 'SST')),
-            CS.EqualsCondition(border_fraction, planner, 'KPIECE'),
-            CS.EqualsCondition(intermediate_states, planner, 'RRT'),
-            CS.EqualsCondition(pruning_radius, planner, 'SST'),
-            CS.EqualsCondition(selection_radius, planner, 'SST')
-        ])
-        return cs
+    #     cs.add_conditions([
+    #         CS.EqualsCondition(rnge, planner, 'EST'),
+    #         CS.OrConjunction(CS.EqualsCondition(goal_bias, planner, 'EST'),
+    #                          CS.EqualsCondition(goal_bias, planner, 'KPIECE'),
+    #                          CS.EqualsCondition(goal_bias, planner, 'PDST'),
+    #                          CS.EqualsCondition(goal_bias, planner, 'RRT'),
+    #                          CS.EqualsCondition(goal_bias, planner, 'SST')),
+    #         CS.EqualsCondition(border_fraction, planner, 'KPIECE'),
+    #         CS.EqualsCondition(intermediate_states, planner, 'RRT'),
+    #         CS.EqualsCondition(pruning_radius, planner, 'SST'),
+    #         CS.EqualsCondition(selection_radius, planner, 'SST')
+    #     ])
+    #     return cs
 
 class OptWorker(OmplappBaseWorker):
     def __init__(self, config_files, *args, **kwargs):
-        super().__init__(config_files, {'path_length': 'solution length REAL'},
+        super().__init__(config_files,
+                         {'path_length': 'solution length REAL',
+                          'goal_distance': 'solution difference REAL'},
                          *args,
                          selected_progress_properties={'time': 'time REAL',
                                                        'cost': 'best cost REAL'},
                          **kwargs)
 
-    def loss(self, budget, results):
-        return quantile_with_fallback(results['_progress_loss'], self.MAX_COST)
+    def problem_loss(self, progress_loss, goal_distance):
+        return np.quantile([pl if np.isfinite(pl)
+                   else self.MAX_COST + gd if np.isfinite(gd) else 2 * self.MAX_COST
+                   for pl, gd in zip(progress_loss, goal_distance)], .7)
+
+    def loss(self, _, results):
+        return np.sum([self.problem_loss(pls, gds) 
+                       for pls, gds in zip(results['_progress_loss'], results['goal_distance'])])
 
     def area_under_curve(self, time, cost):
         # the cost over the interval [0, time_to_first_solution] is set to be
         # equal to cost of first solution
         if not time:
-            return self.MAX_COST
+            return np.nan
         ind = np.isfinite(cost)
         cost = np.array(cost)[ind]
         time = np.array(time)[ind]
         if time.size == 0:
-            return self.MAX_COST
+            return np.nan
         cost = np.insert(cost, 0, cost[0])
         time = np.insert(time, 0, 0.)
+        print(time, cost)
         return np.trapz(cost, time)
 
     def progress_loss(self, budget, progress_data):
-        return [self.area_under_curve(t, c)
+        return [self.area_under_curve(t, c) / budget
                 for t, c in zip(progress_data['time'], progress_data['cost'])]
 
     def duration_runs(self, budget):
@@ -230,17 +247,19 @@ class OptWorker(OmplappBaseWorker):
         planner = CSH.CategoricalHyperparameter(
             name='planner',
             choices=[
+                'AITstar',
                 'AnytimePathShortening',
                 'BITstar',
                 'CForest',
-                'LazyLBTRRT',
-                'LazyPRMstar',
+                'FMT',
+                # 'LazyLBTRRT',
+                # 'LazyPRMstar',
                 'LBTRRT',
-                'PRMstar',
+                # 'PRMstar',
                 'RRTstar',
                 'RRTXstatic',
-                'SPARS',
-                'SPARS2',
+                # 'SPARS',
+                # 'SPARS2',
                 'SST'
             ]
         )
@@ -253,158 +272,166 @@ class OptWorker(OmplappBaseWorker):
             'goal_bias', lower=0., upper=1., default_value=.05)
         use_k_nearest = CSH.UniformIntegerHyperparameter(
             'use_k_nearest', lower=0, upper=1, default_value=1)
-        epsilon = CSH.UniformFloatHyperparameter(
-            'epsilon', lower=0., upper=10., default_value=.4)
-        rewire_factor = CSH.UniformFloatHyperparameter(
-            'rewire_factor', lower=1., upper=2., default_value=1.1)
-        informed_sampling = CSH.UniformIntegerHyperparameter(
-            'informed_sampling', lower=0, upper=1, default_value=0)
-        sample_rejection = CSH.UniformIntegerHyperparameter(
-            'sample_rejection', lower=0, upper=1, default_value=0)
-        number_sampling_attempts = CSH.UniformIntegerHyperparameter(
-            'number_sampling_attempts', lower=10, upper=100000, default_value=100, log=True)
-        stretch_factor = CSH.UniformFloatHyperparameter(
-            'stretch_factor', lower=1.1, upper=3., default_value=3.)
-        sparse_delta_fraction = CSH.UniformFloatHyperparameter(
-            'sparse_delta_fraction', lower=0., upper=1., default_value=.25)
-        dense_delta_fraction = CSH.UniformFloatHyperparameter(
-            'dense_delta_fraction', lower=0., upper=.1, default_value=.001)
-        max_failures = CSH.UniformIntegerHyperparameter(
-            'max_failures', lower=100, upper=3000, default_value=1000, log=True)
+        # epsilon = CSH.UniformFloatHyperparameter(
+        #     'epsilon', lower=0., upper=10., default_value=.4)
+        # rewire_factor = CSH.UniformFloatHyperparameter(
+        #     'rewire_factor', lower=1., upper=2., default_value=1.1)
+        # informed_sampling = CSH.UniformIntegerHyperparameter(
+        #     'informed_sampling', lower=0, upper=1, default_value=0)
+        # sample_rejection = CSH.UniformIntegerHyperparameter(
+        #     'sample_rejection', lower=0, upper=1, default_value=0)
+        # number_sampling_attempts = CSH.UniformIntegerHyperparameter(
+        #     'number_sampling_attempts', lower=10, upper=100000, default_value=100, log=True)
+        # stretch_factor = CSH.UniformFloatHyperparameter(
+        #     'stretch_factor', lower=1.1, upper=3., default_value=3.)
+        # sparse_delta_fraction = CSH.UniformFloatHyperparameter(
+        #     'sparse_delta_fraction', lower=0., upper=1., default_value=.25)
+        # dense_delta_fraction = CSH.UniformFloatHyperparameter(
+        #     'dense_delta_fraction', lower=0., upper=.1, default_value=.001)
+        # max_failures = CSH.UniformIntegerHyperparameter(
+        #     'max_failures', lower=100, upper=3000, default_value=1000, log=True)
         focus_search = CSH.UniformIntegerHyperparameter(
             'focus_search', lower=0, upper=1, default_value=1)
+        samples_per_batch = CSH.UniformIntegerHyperparameter(
+            'samples_per_batch', lower=1, upper=1000000, default_value=100)
 
-        cs.add_hyperparameters([
-            rnge, goal_bias, use_k_nearest, epsilon, rewire_factor, informed_sampling,
-            sample_rejection, number_sampling_attempts, stretch_factor, sparse_delta_fraction,
-            dense_delta_fraction, max_failures, focus_search
-        ])
+        cs.add_hyperparameters([rnge, goal_bias, use_k_nearest, focus_search, samples_per_batch])
+            # rnge, goal_bias, use_k_nearest, epsilon, rewire_factor, informed_sampling,
+            # sample_rejection, number_sampling_attempts, stretch_factor, sparse_delta_fraction,
+            # dense_delta_fraction, max_failures, focus_search
         cs.add_conditions([
             CS.OrConjunction(
-                CS.EqualsCondition(rnge, planner, 'LazyLBTRRT'),
-                CS.EqualsCondition(rnge, planner, 'LazyPRMstar'),
+                #CS.EqualsCondition(rnge, planner, 'LazyLBTRRT'),
+                #CS.EqualsCondition(rnge, planner, 'LazyPRMstar'),
                 CS.EqualsCondition(rnge, planner, 'LBTRRT'),
                 CS.EqualsCondition(rnge, planner, 'RRTXstatic'),
                 CS.EqualsCondition(rnge, planner, 'SST')
             ),
             CS.OrConjunction(
-                CS.EqualsCondition(goal_bias, planner, 'LazyLBTRRT'),
+                #CS.EqualsCondition(goal_bias, planner, 'LazyLBTRRT'),
                 CS.EqualsCondition(goal_bias, planner, 'LBTRRT'),
+                CS.EqualsCondition(goal_bias, planner, 'RRTstar'),
                 CS.EqualsCondition(goal_bias, planner, 'RRTXstatic'),
                 CS.EqualsCondition(goal_bias, planner, 'SST')
             ),
             CS.OrConjunction(
+                CS.EqualsCondition(use_k_nearest, planner, 'AITstar'),
                 CS.EqualsCondition(use_k_nearest, planner, 'BITstar'),
+                CS.EqualsCondition(use_k_nearest, planner, 'FMT'),
                 CS.EqualsCondition(use_k_nearest, planner, 'RRTstar'),
                 CS.EqualsCondition(use_k_nearest, planner, 'RRTXstatic')
             ),
-            CS.OrConjunction(
-                CS.EqualsCondition(epsilon, planner, 'LazyLBTRRT'),
-                CS.EqualsCondition(epsilon, planner, 'LBTRRT'),
-                CS.EqualsCondition(epsilon, planner, 'RRTXstatic')
-            ),
-            CS.OrConjunction(
-                CS.EqualsCondition(rewire_factor, planner, 'BITstar'),
-                CS.EqualsCondition(rewire_factor, planner, 'RRTstar'),
-                CS.EqualsCondition(rewire_factor, planner, 'RRTXstatic')
-            ),
-            CS.OrConjunction(
-                CS.EqualsCondition(informed_sampling, planner, 'RRTstar'),
-                CS.EqualsCondition(informed_sampling, planner, 'RRTXstatic')
-            ),
-            CS.OrConjunction(
-                CS.EqualsCondition(sample_rejection, planner, 'RRTstar'),
-                CS.EqualsCondition(sample_rejection, planner, 'RRTXstatic')
-            ),
-            CS.OrConjunction(
-                CS.EqualsCondition(number_sampling_attempts,
-                                   planner, 'RRTstar'),
-                CS.EqualsCondition(number_sampling_attempts,
-                                   planner, 'RRTXstatic')
-            ),
-            CS.OrConjunction(
-                CS.EqualsCondition(stretch_factor, planner, 'SPARS'),
-                CS.EqualsCondition(stretch_factor, planner, 'SPARS2')
-            ),
-            CS.OrConjunction(
-                CS.EqualsCondition(sparse_delta_fraction, planner, 'SPARS'),
-                CS.EqualsCondition(sparse_delta_fraction, planner, 'SPARS2')
-            ),
-            CS.OrConjunction(
-                CS.EqualsCondition(dense_delta_fraction, planner, 'SPARS'),
-                CS.EqualsCondition(dense_delta_fraction, planner, 'SPARS2')
-            ),
-            CS.OrConjunction(
-                CS.EqualsCondition(max_failures, planner, 'SPARS'),
-                CS.EqualsCondition(max_failures, planner, 'SPARS2')
-            ),
+            # CS.OrConjunction(
+            #     #CS.EqualsCondition(epsilon, planner, 'LazyLBTRRT'),
+            #     CS.EqualsCondition(epsilon, planner, 'LBTRRT'),
+            #     CS.EqualsCondition(epsilon, planner, 'RRTXstatic')
+            # ),
+            # CS.OrConjunction(
+            #     CS.EqualsCondition(rewire_factor, planner, 'BITstar'),
+            #     CS.EqualsCondition(rewire_factor, planner, 'RRTstar'),
+            #     CS.EqualsCondition(rewire_factor, planner, 'RRTXstatic')
+            # ),
+            # CS.OrConjunction(
+            #     CS.EqualsCondition(informed_sampling, planner, 'RRTstar'),
+            #     CS.EqualsCondition(informed_sampling, planner, 'RRTXstatic')
+            # ),
+            # CS.OrConjunction(
+            #     CS.EqualsCondition(sample_rejection, planner, 'RRTstar'),
+            #     CS.EqualsCondition(sample_rejection, planner, 'RRTXstatic')
+            # ),
+            # CS.OrConjunction(
+            #     CS.EqualsCondition(number_sampling_attempts,
+            #                        planner, 'RRTstar'),
+            #     CS.EqualsCondition(number_sampling_attempts,
+            #                        planner, 'RRTXstatic')
+            # ),
+            # CS.OrConjunction(
+            #     CS.EqualsCondition(stretch_factor, planner, 'SPARS'),
+            #     CS.EqualsCondition(stretch_factor, planner, 'SPARS2')
+            # ),
+            # CS.OrConjunction(
+            #     CS.EqualsCondition(sparse_delta_fraction, planner, 'SPARS'),
+            #     CS.EqualsCondition(sparse_delta_fraction, planner, 'SPARS2')
+            # ),
+            # CS.OrConjunction(
+            #     CS.EqualsCondition(dense_delta_fraction, planner, 'SPARS'),
+            #     CS.EqualsCondition(dense_delta_fraction, planner, 'SPARS2')
+            # ),
+            # CS.OrConjunction(
+            #     CS.EqualsCondition(max_failures, planner, 'SPARS'),
+            #     CS.EqualsCondition(max_failures, planner, 'SPARS2')
+            # ),
             CS.OrConjunction(
                 CS.EqualsCondition(focus_search, planner, 'RRTstar'),
                 CS.EqualsCondition(focus_search, planner, 'CForest')
+            ),
+            CS.OrConjunction(
+                CS.EqualsCondition(samples_per_batch, planner, 'AITstar'),
+                CS.EqualsCondition(samples_per_batch, planner, 'BITstar')
             )
+
         ])
-        cs.add_forbidden_clause(
-            CS.ForbiddenAndConjunction(
-                CS.ForbiddenEqualsClause(informed_sampling, 1),
-                CS.ForbiddenEqualsClause(sample_rejection, 1)
-            )
-        )
+        # cs.add_forbidden_clause(
+        #     CS.ForbiddenAndConjunction(
+        #         CS.ForbiddenEqualsClause(informed_sampling, 1),
+        #         CS.ForbiddenEqualsClause(sample_rejection, 1)
+        #     )
+        # )
 
         # AnytimePathShortening
         max_hybrid_paths = CSH.UniformIntegerHyperparameter(
             'max_hybrid_paths', lower=2, upper=128, default_value=24, log=True)
         num_planners = CSH.UniformIntegerHyperparameter(
             'num_planners', lower=2, upper=8, default_value=4)
-        shortcut = CSH.UniformIntegerHyperparameter(
-            'shortcut', lower=0, upper=1, default_value=1)
-        hybridize = CSH.UniformIntegerHyperparameter(
-            'hybridize', lower=0, upper=1, default_value=1)
+        # shortcut = CSH.UniformIntegerHyperparameter(
+        #     'shortcut', lower=0, upper=1, default_value=1)
+        # hybridize = CSH.UniformIntegerHyperparameter(
+        #     'hybridize', lower=0, upper=1, default_value=1)
         cs.add_hyperparameters([
-            max_hybrid_paths, num_planners, shortcut, hybridize])
+            #max_hybrid_paths, num_planners, shortcut, hybridize])
+            max_hybrid_paths, num_planners])
         cs.add_conditions([
             CS.EqualsCondition(max_hybrid_paths, planner,
                                'AnytimePathShortening'),
-            CS.EqualsCondition(num_planners, planner, 'AnytimePathShortening'),
-            CS.EqualsCondition(shortcut, planner, 'AnytimePathShortening'),
-            CS.EqualsCondition(hybridize, planner, 'AnytimePathShortening')
+            CS.EqualsCondition(num_planners, planner, 'AnytimePathShortening')#,
+            # CS.EqualsCondition(shortcut, planner, 'AnytimePathShortening'),
+            # CS.EqualsCondition(hybridize, planner, 'AnytimePathShortening')
         ])
 
         # BIT*
-        samples_per_batch = CSH.UniformIntegerHyperparameter(
-            'samples_per_batch', lower=1, upper=1000000, default_value=100)
-        use_graphPtr_pruning = CSH.UniformIntegerHyperparameter(
-            'use_graphPtr_pruning', lower=0, upper=1, default_value=1)
-        prune_threshold_as_fractional_cost_change = CSH.UniformFloatHyperparameter(
-            'prune_threshold_as_fractional_cost_change', lower=0., upper=1., default_value=.05)
-        delay_rewiring_to_first_solution = CSH.UniformIntegerHyperparameter(
-            'delay_rewiring_to_first_solution', lower=0, upper=1, default_value=1)
-        use_just_in_time_sampling = CSH.UniformIntegerHyperparameter(
-            'use_just_in_time_sampling', lower=0, upper=1, default_value=0)
-        drop_unconnected_samples_on_prune = CSH.UniformIntegerHyperparameter(
-            'drop_unconnected_samples_on_prune', lower=0, upper=1, default_value=0)
-        use_strict_queue_ordering = CSH.UniformIntegerHyperparameter(
-            'use_strict_queue_ordering', lower=0, upper=1, default_value=0)
-        find_approximate_solutions = CSH.UniformIntegerHyperparameter(
-            'find_approximate_solutions', lower=0, upper=1, default_value=0)
-        cs.add_hyperparameters([
-            samples_per_batch, use_graphPtr_pruning, prune_threshold_as_fractional_cost_change,
-            delay_rewiring_to_first_solution, use_just_in_time_sampling,
-            drop_unconnected_samples_on_prune, use_strict_queue_ordering,
-            find_approximate_solutions
-        ])
-        cs.add_conditions([
-            CS.EqualsCondition(samples_per_batch, planner, 'BITstar'),
-            CS.EqualsCondition(use_graphPtr_pruning, planner, 'BITstar'),
-            CS.EqualsCondition(
-                prune_threshold_as_fractional_cost_change, planner, 'BITstar'),
-            CS.EqualsCondition(
-                delay_rewiring_to_first_solution, planner, 'BITstar'),
-            CS.EqualsCondition(use_just_in_time_sampling, planner, 'BITstar'),
-            CS.EqualsCondition(
-                drop_unconnected_samples_on_prune, planner, 'BITstar'),
-            CS.EqualsCondition(use_strict_queue_ordering, planner, 'BITstar'),
-            CS.EqualsCondition(find_approximate_solutions, planner, 'BITstar')
-        ])
+        # use_graphPtr_pruning = CSH.UniformIntegerHyperparameter(
+        #     'use_graphPtr_pruning', lower=0, upper=1, default_value=1)
+        # prune_threshold_as_fractional_cost_change = CSH.UniformFloatHyperparameter(
+        #     'prune_threshold_as_fractional_cost_change', lower=0., upper=1., default_value=.05)
+        # delay_rewiring_to_first_solution = CSH.UniformIntegerHyperparameter(
+        #     'delay_rewiring_to_first_solution', lower=0, upper=1, default_value=1)
+        # use_just_in_time_sampling = CSH.UniformIntegerHyperparameter(
+        #     'use_just_in_time_sampling', lower=0, upper=1, default_value=0)
+        # drop_unconnected_samples_on_prune = CSH.UniformIntegerHyperparameter(
+        #     'drop_unconnected_samples_on_prune', lower=0, upper=1, default_value=0)
+        # use_strict_queue_ordering = CSH.UniformIntegerHyperparameter(
+        #     'use_strict_queue_ordering', lower=0, upper=1, default_value=0)
+        # find_approximate_solutions = CSH.UniformIntegerHyperparameter(
+        #     'find_approximate_solutions', lower=0, upper=1, default_value=0)
+        # cs.add_hyperparameters([
+        #     samples_per_batch, use_graphPtr_pruning, prune_threshold_as_fractional_cost_change,
+        #     delay_rewiring_to_first_solution, use_just_in_time_sampling,
+        #     drop_unconnected_samples_on_prune, use_strict_queue_ordering,
+        #     find_approximate_solutions
+        # ])
+        # cs.add_conditions([
+        #     CS.EqualsCondition(samples_per_batch, planner, 'BITstar'),
+        #     CS.EqualsCondition(use_graphPtr_pruning, planner, 'BITstar'),
+        #     CS.EqualsCondition(
+        #         prune_threshold_as_fractional_cost_change, planner, 'BITstar'),
+        #     CS.EqualsCondition(
+        #         delay_rewiring_to_first_solution, planner, 'BITstar'),
+        #     CS.EqualsCondition(use_just_in_time_sampling, planner, 'BITstar'),
+        #     CS.EqualsCondition(
+        #         drop_unconnected_samples_on_prune, planner, 'BITstar'),
+        #     CS.EqualsCondition(use_strict_queue_ordering, planner, 'BITstar'),
+        #     CS.EqualsCondition(find_approximate_solutions, planner, 'BITstar')
+        # ])
 
         # CForest
         num_threads = CSH.UniformIntegerHyperparameter(
@@ -412,6 +439,12 @@ class OptWorker(OmplappBaseWorker):
         cs.add_hyperparameter(num_threads)
         cs.add_condition(CS.EqualsCondition(num_threads, planner, 'CForest'))
 
+        # FMT
+        num_samples = CSH.UniformIntegerHyperparameter(
+             'num_samples', lower=1000, upper=50000, default_value=1000, log=True)
+        cs.add_hyperparameter(num_samples)
+        cs.add_condition(CS.EqualsCondition(num_samples, planner, 'FMT'))
+        
         # RRT*
         delay_collision_checking = CSH.UniformIntegerHyperparameter(
             'delay_collision_checking', lower=0, upper=1, default_value=1)
@@ -461,25 +494,25 @@ class OptWorker(OmplappBaseWorker):
         # )
 
         # RRTXstatic
-        update_children = CSH.UniformIntegerHyperparameter(
-            'update_children', lower=0, upper=1, default_value=1)
+        # update_children = CSH.UniformIntegerHyperparameter(
+        #     'update_children', lower=0, upper=1, default_value=1)
         rejection_variant = CSH.UniformIntegerHyperparameter(
             'rejection_variant', lower=0, upper=3, default_value=0)
-        rejection_variant_alpha = CSH.UniformFloatHyperparameter(
-            'rejection_variant_alpha', lower=0., upper=1., default_value=1.)
+        # rejection_variant_alpha = CSH.UniformFloatHyperparameter(
+        #     'rejection_variant_alpha', lower=0., upper=1., default_value=1.)
         cs.add_hyperparameters(
-            [update_children, rejection_variant, rejection_variant_alpha])
+            [rejection_variant])
         cs.add_conditions([
-            CS.EqualsCondition(update_children, planner, 'RRTXstatic'),
-            CS.EqualsCondition(rejection_variant, planner, 'RRTXstatic'),
-            CS.EqualsCondition(rejection_variant_alpha, planner, 'RRTXstatic')
+            #CS.EqualsCondition(update_children, planner, 'RRTXstatic'),
+            CS.EqualsCondition(rejection_variant, planner, 'RRTXstatic')#,
+            #CS.EqualsCondition(rejection_variant_alpha, planner, 'RRTXstatic')
         ])
 
         # SST
         selection_radius = CSH.UniformFloatHyperparameter(
-            'selection_radius', lower=.1, upper=100., default_value=5., log=True)
+            'selection_radius', lower=10, upper=500., default_value=50., log=True)
         pruning_radius = CSH.UniformFloatHyperparameter(
-            'pruning_radius', lower=.1, upper=100., default_value=3., log=True)
+            'pruning_radius', lower=10, upper=500., default_value=10., log=True)
         cs.add_hyperparameters([selection_radius, pruning_radius])
         cs.add_conditions([
             CS.EqualsCondition(selection_radius, planner, 'SST'),

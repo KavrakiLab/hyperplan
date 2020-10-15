@@ -46,11 +46,11 @@ from hpbandster.core.worker import Worker
 
 class BaseWorker(Worker, ABC):
     LOG_PROPERTIES_REGEXP = re.compile(
-        r'[\d]+ properties for each run\n([\w\s]+)\n[\d]+ runs\n([\w\s.;+-]+)\n' + \
+        r'[\d]+ properties for each run\n([\w\s]+)\n[\d]+ runs\n([infean\d\s.;+-]+)\n' + \
         r'([.]|[\d]+ progress properties for each run)\n')
     LOG_PROGRESS_PROPERTIES_REGEXP = re.compile(
         r'[\d]+ progress properties for each run\n([\w\s]+)\n[\d]+ runs\n([\w\s.;,+-]+)\n[.]\n')
-    MAX_COST = 1e8
+    MAX_COST = 1e5
 
     def __init__(self, configs, selected_properties, *args,
                  selected_progress_properties={}, **kwargs):
@@ -59,6 +59,7 @@ class BaseWorker(Worker, ABC):
         self.keep_log_files = True
         self.selected_properties = selected_properties
         self.selected_progress_properties = selected_progress_properties
+        self.simplify = 0
 
     @abstractmethod
     def initialize_problems(self, configs):
@@ -100,7 +101,7 @@ class BaseWorker(Worker, ABC):
                     problem += '\n%s=%s' % (param[8:], value)
             planner = config['planner'].lower()
             problem += f'\n\n[benchmark]\ntime_limit={duration}\nmem_limit=100000\n' \
-                       f'run_count={num_runs}\n\n[planner]\n{planner}=\n'
+                       f'run_count={num_runs}\nsimplify={self.simplify}\n\n[planner]\n{planner}=\n'
             for param, value in config.items():
                 if not param == 'planner' and not param.startswith('problem.'):
                     problem += f'{planner}.{param}={value}\n'
@@ -117,7 +118,7 @@ class BaseWorker(Worker, ABC):
                 for key in self.selected_properties.keys():
                     results[key].append([budget if key == 'time' else np.nan])
                 for key in self.selected_progress_properties.keys():
-                    results[key].append([self.MAX_COST if key == 'cost' else np.nan])
+                    results[key].append([np.nan])
                 continue
             if not self.keep_log_files:
                 os.remove(abs_path)
@@ -157,7 +158,7 @@ class BaseWorker(Worker, ABC):
                     else:
                         logging.warning(f'progress property "{val}" was not found in log')
                         progress_data[key] = len(values) * [[np.nan]]
-                results['_progress_loss'] = self.progress_loss(budget, progress_data)
+                results['_progress_loss'].append(self.progress_loss(budget, progress_data))
         if not self.keep_log_files:
             os.remove(log_path)
         return results            
