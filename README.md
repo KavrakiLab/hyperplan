@@ -1,7 +1,8 @@
-# Motion Planning Hyperparameter Optimization (MPHPO)
+# HyperPlan: Motion Planning Hyperparameter Optimization
 
-Tool for automatic selection of a motion planning algorithm and its parameters
-that optimize some performance metric over a given set of problems.
+HyperPlan is a tool for automatic selection of a motion planning algorithm and
+its parameters that optimize some performance metric over a given set of
+problems.
 
 It uses [HpBandSter](https://github.com/automl/HpBandSter) as the underlying
 optimization package.
@@ -32,12 +33,12 @@ TODO
 
 2. Check out the code:
 
-         export CATKIN_WS=~/ws_mphpo
+         export CATKIN_WS=~/ws_hyperplan
          mkdir -p $CATKIN_WS/src
          cd $CATKIN_WS/src
          wstool init .
-         git clone git@github.com:KavrakiLab/mphpo.git
-         wstool merge $CATKIN_WS/src/mphpo/mphpo.rosinstall
+         git clone git@github.com:KavrakiLab/hyperplan.git
+         wstool merge $CATKIN_WS/src/hyperplan/hyperplan.rosinstall
          wstool update
 
 3. Configure and build the code:
@@ -58,25 +59,23 @@ Below are some examples on how to run the command line tool to optimize for diff
 
 ### OMPL.app benchmarking
 
-Find planner configuration that optimizes speed of geometric planning:
+Find a planner configuration that optimizes speed of geometric planning:
 
-    ./scripts/mphpo_cmdline.py --n_workers 10 --shared_directory /some/network/drive examples/cubicles.cfg
-    # repeat 9 times on worker nodes:
-    ./scripts/mphpo_cmdline.py --worker --n_workers 10 --shared_directory /some/network/drive examples/cubicles.cfg
+    ./examples/speed.sh
 
-Find planner configuration that optimizes speed of kinodynamic planning:
+Find a planner configuration that optimizes speed of kinodynamic planning:
 
-    ./scripts/mphpo_cmdline.py --n_workers 10 --shared_directory /some/network/drive --opt speed_kinodynamic examples/Maze_kcar.cfg
-    # repeat 9 times on worker nodes:
-    ./scripts/mphpo_cmdline.py --worker --n_workers 10 --shared_directory /some/network/drive --opt speed_kinodynamic examples/Maze_kcar.cfg
+    ./examples/speed_kinodynamic.sh
 
-Find planner configuration that optimizes convergence rate of asymptotically (near-)optimal geometric planning:
+Find a planner configuration that optimizes convergence rate of asymptotically
+(near-)optimal geometric planning:
 
-    ./scripts/mphpo_cmdline.py --n_workers 10 --shared_directory /some/network/drive --opt opt examples/cubicles.cfg
-    # repeat 9 times on worker nodes:
-    ./scripts/mphpo_cmdline.py --worker --n_workers 10 --shared_directory /some/network/drive --opt opt examples/cubicles.cfg
+    ./examples/convergence.sh
 
-Type `./scripts/mphpo_cmdline.py --help` to see all options. See the shared directory for the result files. See the script `./scripts/analysis.py` for an example of how to perform some basic analysis of the results.
+Type `./scripts/hyperplan.py --help` to see all options. See the shared
+directory for the result files. See the scripts `./scripts/analysis.py` and
+`./scripts/hyperplanvis.{py,R}` for examples of how to perform some basic
+analysis of the results.
 
 ### MoveIt
 
@@ -84,13 +83,14 @@ TODO
 
 ### Robowflex benchmarking
 
-Find planner configuration that optimizes speed of geometric planning for the Fetch arm and torso using 10 scenes and corresponding motion planning queries:
+Find planner configuration that optimizes speed of geometric planning for the
+Fetch arm and torso using 10 scenes and corresponding motion planning queries:
 
     # run the following line for every compute node where you have more than 1 worker running
     if [ `rostopic list |wc -l` == 0 ]; then roscore; fi &
-    ./scripts/mphpo_cmdline.py --n_workers 10 --shared_directory /some/network/drive --backend robowflex examples/fetch &
+    ./scripts/hyperplan.py --n_workers 10 --shared_directory /some/network/drive --backend robowflex examples/fetch &
     # repeat 9 times on worker nodes:
-    ./scripts/mphpo_cmdline.py --worker --n_workers 10 --shared_directory /some/network/drive --backend robowflex examples/fetch
+    ./scripts/hyperplan.py --worker --n_workers 10 --shared_directory /some/network/drive --backend robowflex examples/fetch
 
 Note the format in the example directory:
 

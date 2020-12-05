@@ -113,7 +113,7 @@ class RobowflexBaseWorker(BaseWorker):
             try:
                 log_dir = abs_path + '_logs/'
                 subprocess.run(['env', f'ROS_MASTER_URI=http://localhost:{port}/',
-                                'rosrun', 'mphpo', 'robowflex_helper', str(scene), str(request), abs_path,
+                                'rosrun', 'hyperplan', 'robowflex_helper', str(scene), str(request), abs_path,
                                 str(duration), str(num_runs), log_dir], check=True)
             except subprocess.CalledProcessError as err:
                 logging.warning(

@@ -13,7 +13,7 @@
   <param name="warehouse_plugin" value="warehouse_ros_mongo::MongoDatabaseConnection"/>
   <node name="$(anon mongo_wrapper_ros)" cwd="ROS_HOME" type="mongo_wrapper_ros.py" pkg="warehouse_ros_mongo">
     <param name="overwrite" value="false"/>
-    <param name="database_path" value="$(find mphpo)/examples/panda_warehouse_mongo_db" />
+    <param name="database_path" value="$(find hyperplan)/examples/panda_warehouse_mongo_db" />
   </node>
 
 

@@ -46,7 +46,7 @@ import logging
 import hpbandster.core.nameserver as hpns
 import hpbandster.core.result as hpres
 from hpbandster.optimizers import BOHB
-from mphpo import omplapp, robowflex
+from hyperplan import omplapp, robowflex
 
 def default_network_interface():
     operating_system = platform.system()
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     parser.add_argument('--nic_name', type=str, default=default_network_interface(),
                         help='Which network interface to use for communication.')
     parser.add_argument('--shared_directory', type=str,
-                        default=os.environ['HOME'] + '/Bubox/archive/mmoll/mark_moll/mphpo/results',
+                        default=os.environ['HOME'] + '/Bubox/archive/mmoll/mark_moll/hyperplan/results',
                         help='A directory that is accessible for all processes, e.g. a NFS share.')
     parser.add_argument('--opt', type=str, choices={key[1] for key in worker_types.keys()}, default='speed',
                         help='Type of hyperparameter optimization to perform')

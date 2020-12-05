@@ -79,7 +79,7 @@ class BaseWorker(Worker, ABC):
 
     def offline_loss(self, budget, logfiles):
         """Helper function to compute the loss function for benchmark log files produced
-           outside of the mphpo framework."""
+           outside of the hyperplan framework."""
 
         results = defaultdict(list)
         for logfile in logfiles:

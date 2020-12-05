@@ -1,6 +1,6 @@
 - git:
-    uri: git@github.com:KavrakiLab/mphpo.git
-    local-name: mphpo
+    uri: git@github.com:KavrakiLab/hyperplan.git
+    local-name: hyperplan
     version: master
 - git:
     uri: git@github.com:KavrakiLab/robowflex.git

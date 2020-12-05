@@ -50,7 +50,7 @@ from .base_worker import BaseWorker
 class MoveItSpeedWorker(BaseWorker):
     def __init__(self, config_prefixes, *args, **kwargs):
         rospack = rospkg.RosPack()
-        base_path = Path(rospack.get_path('mphpo'))
+        base_path = Path(rospack.get_path('hyperplan'))
         self.launch_files = [base_path / 'launch' / (config + '.launch')
             for config in config_prefixes]
         config_files = [base_path / 'examples' / (config + '.yaml')
