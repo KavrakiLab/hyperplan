@@ -85,7 +85,7 @@ class SpeedWorker(OmplappBaseWorker):
         max_nearest_neighbors = CSH.UniformIntegerHyperparameter(
             'max_nearest_neighbors', lower=1, upper=20, default_value=8)
         rnge = CSH.UniformFloatHyperparameter(
-            'range', lower=0.001, upper=10000, log=True)
+            'range', lower=1, upper=500)
         intermediate_states = CSH.UniformIntegerHyperparameter(
             'intermediate_states', lower=0, upper=1, default_value=0)
         goal_bias = CSH.UniformFloatHyperparameter(
@@ -267,7 +267,7 @@ class OptWorker(OmplappBaseWorker):
 
         # parameters common among more than one planner
         rnge = CSH.UniformFloatHyperparameter(
-            'range', lower=0.001, upper=1000, log=True)
+            'range', lower=1, upper=500)
         goal_bias = CSH.UniformFloatHyperparameter(
             'goal_bias', lower=0., upper=1., default_value=.05)
         use_k_nearest = CSH.UniformIntegerHyperparameter(
