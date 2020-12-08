@@ -55,7 +55,8 @@ TODO
 
 ## Running the optimization
 
-Below are some examples on how to run the command line tool to optimize for different objectives using different backends.
+Below are some examples on how to run the command line tool to optimize for
+different objectives using different backends.
 
 ### OMPL.app benchmarking
 
@@ -86,13 +87,15 @@ TODO
 Find planner configuration that optimizes speed of geometric planning for the
 Fetch arm and torso using 10 scenes and corresponding motion planning queries:
 
-    # run the following line for every compute node where you have more than 1 worker running
-    if [ `rostopic list |wc -l` == 0 ]; then roscore; fi &
-    ./scripts/hyperplan.py --n_workers 10 --shared_directory /some/network/drive --backend robowflex examples/fetch &
-    # repeat 9 times on worker nodes:
-    ./scripts/hyperplan.py --worker --n_workers 10 --shared_directory /some/network/drive --backend robowflex examples/fetch
+    ./examples/robowflex_speed.sh
 
-Note the format in the example directory:
+Note the format in the `examples/fetch` directory:
 
-- There is an equal number of scene and motion planning request YAML files. The scenes are all the files that match the glob pattern `*scene*.yaml`, while the requests are the files that `*request*.yaml`. The aggregate performance across all the planning problems is optimized.
-- The `ompl_planning.yaml` file is a minimal template of the `ompl_planning.yaml` file that is normally found in the `<robot>_moveit_config` package for a robot. The only things you'd have to change for a different robot are the planning group and the projection.
+- There is an equal number of scene and motion planning request YAML files. The
+  scenes are all the files that match the glob pattern `*scene*.yaml`, while
+  the requests are the files that `*request*.yaml`. The aggregate performance
+  across all the planning problems is optimized.
+- The `ompl_planning.yaml` file is a minimal template of the
+  `ompl_planning.yaml` file that is normally found in the
+  `<robot>_moveit_config` package for a robot. The only things you'd have to
+  change for a different robot are the planning group and the projection.

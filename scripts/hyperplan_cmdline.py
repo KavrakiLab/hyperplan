@@ -53,7 +53,7 @@ def default_network_interface():
     network_interface = 'eth0'
     if operating_system == 'Linux':
         try:
-            output = subprocess.run('route | grep \'^default\' | grep -o \'[^ ]*$\'', shell=True, capture_output=True, check=True)
+            output = subprocess.run('route | grep \'^default\' | grep -v wlx | grep -o \'[^ ]*$\'', shell=True, capture_output=True, check=True)
             network_interface = output.stdout.decode().strip()
         except subprocess.CalledProcessError:
             pass
