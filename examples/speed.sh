@@ -1,4 +1,5 @@
 #/bin/bash
+export PATH=${HOME}/bin:${PATH}
 source ${HOME}/ws_hyperplan/devel/setup.bash
 source ${HOME}/ws_hyperplan/venv/bin/activate
 cd ${HOME}/ws_hyperplan/src/hyperplan

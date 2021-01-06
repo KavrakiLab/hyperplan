@@ -54,7 +54,7 @@ class SpeedWorker(OmplappBaseWorker):
                          *args, **kwargs)
 
     def loss(self, budget, results):
-        return np.sum([quantile_with_fallback(t[:-1], budget + d[-1]*d[-1])
+        return np.mean([quantile_with_fallback(t[:-1], budget + d[-1]*d[-1])
                        for t, d in zip(results['time'], results['goal_distance'])])
 
     def progress_loss(self, budget, progress_data):
@@ -131,7 +131,7 @@ class SpeedKinodynamicWorker(OmplappBaseWorker):
 
     def loss(self, budget, results):
         # planning time + path length (=duration in seconds) + square of goal distance
-        return np.sum([
+        return np.mean([
             quantile_with_fallback(
                 np.array(t[:-1]) + np.array(pl[:-1]) / self.speed,
                 budget + d[-1]*d[-1]/(self.speed * self.speed) if np.isfinite(d[-1]) else budget * 2)
@@ -216,7 +216,7 @@ class OptWorker(OmplappBaseWorker):
                    for pl, gd in zip(progress_loss, goal_distance)], .7)
 
     def loss(self, _, results):
-        return np.sum([self.problem_loss(pls, gds) 
+        return np.mean([self.problem_loss(pls, gds)
                        for pls, gds in zip(results['_progress_loss'], results['goal_distance'])])
 
     def area_under_curve(self, time, cost):

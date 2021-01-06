@@ -78,7 +78,7 @@ class RobowflexBaseWorker(BaseWorker):
     def initialize_problems(self, configs):
         config_dir = Path(configs[0])
         self.config_template = open(config_dir / 'ompl_planning.yaml', 'r').read()
-        self.problems = list(zip(sorted(config_dir.glob('*scene*.yaml')), sorted(config_dir.glob('*request*.yaml'))))[:5]
+        self.problems = list(zip(sorted(config_dir.glob('*scene*.yaml')), sorted(config_dir.glob('*request*.yaml'))))
 
     def compute(self, config_id, config, budget, working_directory):
         duration, num_runs = self.duration_runs(budget)
@@ -98,22 +98,24 @@ class RobowflexBaseWorker(BaseWorker):
         os.close(cfg_file_handle)
 
         for scene, request in self.problems:
-            roscore_process = None
-            roscore_pid = None
-            try:
-                port = find_port()
-                roscore_process = subprocess.Popen(['env', f'ROS_MASTER_URI=http://localhost:{port}/',
-                                                    'roscore', '-p', str(port)])
-                roscore_pid = roscore_process.pid  # pid of the roscore process (which has child processes)
-                time.sleep(1.) # wait for roscore to come up
-            except OSError as e:
-                sys.stderr.write('roscore could not be run')
-                raise e
+            # roscore_process = None
+            # roscore_pid = None
+            # try:
+            #     port = find_port()
+            #     roscore_process = subprocess.Popen(['env', f'ROS_MASTER_URI=http://localhost:{port}/',
+            #                                         'roscore', '-p', str(port)])
+            #     roscore_pid = roscore_process.pid  # pid of the roscore process (which has child processes)
+            #     time.sleep(2.) # wait for roscore to come up
+            # except OSError as e:
+            #     sys.stderr.write('roscore could not be run')
+            #     raise e
 
             try:
                 log_dir = abs_path + '_logs/'
-                subprocess.run(['env', f'ROS_MASTER_URI=http://localhost:{port}/',
-                                'rosrun', 'hyperplan', 'robowflex_helper', str(scene), str(request), abs_path,
+                # subprocess.run(['env', f'ROS_MASTER_URI=http://localhost:{port}/',
+                #                 'rosrun', 'hyperplan', 'robowflex_helper', str(scene), str(request), abs_path,
+                #                 str(duration), str(num_runs), log_dir], check=True)
+                subprocess.run(['rosrun', 'hyperplan', 'robowflex_helper', str(scene), str(request), abs_path,
                                 str(duration), str(num_runs), log_dir], check=True)
             except subprocess.CalledProcessError as err:
                 logging.warning(
@@ -123,10 +125,10 @@ class RobowflexBaseWorker(BaseWorker):
                 for key in self.selected_progress_properties.keys():
                     results[key].append([self.MAX_COST if key == 'cost' else np.nan])
                 continue
-            if roscore_pid:
-                kill_child_processes(roscore_pid)
-                roscore_process.terminate()
-                roscore_process.wait()
+            # if roscore_pid:
+            #     kill_child_processes(roscore_pid)
+            #     roscore_process.terminate()
+            #     roscore_process.wait()
             if not self.keep_log_files:
                 os.remove(abs_path)
                 os.remove(log_dir)
