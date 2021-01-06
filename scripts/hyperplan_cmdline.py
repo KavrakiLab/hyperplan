@@ -37,8 +37,7 @@
 # Author: Mark Moll
 
 import os
-import platform
-import subprocess
+from pathlib import Path
 import argparse
 import pickle
 import time
@@ -46,35 +45,10 @@ import logging
 import hpbandster.core.nameserver as hpns
 import hpbandster.core.result as hpres
 from hpbandster.optimizers import BOHB
-from hyperplan import omplapp, robowflex
-
-def default_network_interface():
-    operating_system = platform.system()
-    network_interface = 'eth0'
-    if operating_system == 'Linux':
-        try:
-            output = subprocess.run('route | grep \'^default\' | grep -v wlx | grep -o \'[^ ]*$\'', shell=True, capture_output=True, check=True)
-            network_interface = output.stdout.decode().strip()
-        except subprocess.CalledProcessError:
-            pass
-    elif operating_system == 'Darwin':
-        try:
-            output = subprocess.run('route -n get default | grep \'interface:\' | grep -o \'[^ ]*$\'', shell=True, capture_output=True, check=True)
-            network_interface = output.stdout.decode().strip()
-        except subprocess.CalledProcessError:
-            pass
-    return network_interface
-
+from hyperplan import default_network_interface, csv_dump, worker_types
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-
-    worker_types = {
-        ('omplapp', 'speed'): omplapp.SpeedWorker,
-        ('omplapp', 'speed_kinodynamic'): omplapp.SpeedKinodynamicWorker,
-        ('omplapp', 'opt') : omplapp.OptWorker,
-        ('robowflex', 'speed'): robowflex.SpeedWorker
-    }
 
     parser = argparse.ArgumentParser(description='Motion Planning Hyperparameter Optimization.',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -154,8 +128,10 @@ if __name__ == "__main__":
                )
     res = bohb.run(n_iterations=args.n_iterations, min_n_workers=args.n_workers)
 
-    with open(os.path.join(working_dir, 'results.pkl'), 'wb') as fh:
+    with open(Path(working_dir) / 'results.pkl', 'wb') as fh:
         pickle.dump(res, fh)
+
+    csv_dump(res, Path(working_dir) / 'results.csv')
 
     bohb.shutdown(shutdown_workers=True)
     NS.shutdown()

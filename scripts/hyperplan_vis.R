@@ -41,7 +41,7 @@ library(ggbeeswarm)
 cols <- c(few_pal("Medium")(8), rep("#808080", 10))
 
 read_run <- function(dir) {
-    df <- read.csv(paste(dir, '/results.csv', sep=""))
+    df <- read.csv(paste(dir, '/results.csv', sep=""), na.strings=c("NA", "None", "NaN", "nan"))
     df$run.id <- basename(dir)
     df
 }

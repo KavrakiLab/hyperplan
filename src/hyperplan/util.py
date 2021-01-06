@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 ######################################################################
 # Software License Agreement (BSD License)
 #
@@ -35,30 +34,46 @@
 
 # Author: Mark Moll
 
-import sys
-import hpbandster.core.result as hpres
-from pathlib import Path
+import platform
+import subprocess
+import numpy as np
 
+def quantile_with_fallback(x, fallback, q=.7):
+    return np.quantile(x, q) if len(x) > 0 else fallback
+def nanquantile_with_fallback(x, fallback, q=.7):
+    return np.nanquantile(x, q) if len(x) > 0 else fallback
 
-def planner_plot(path):
-    result = hpres.logged_results_to_HBS_result(path)
+def default_network_interface():
+    operating_system = platform.system()
+    network_interface = 'eth0'
+    if operating_system == 'Linux':
+        try:
+            output = subprocess.run(
+                'route | grep \'^default\' | grep -v wlx | grep -o \'[^ ]*$\'',
+                shell=True, capture_output=True, check=True)
+            network_interface = output.stdout.decode().strip()
+        except subprocess.CalledProcessError:
+            pass
+    elif operating_system == 'Darwin':
+        try:
+            output = subprocess.run(
+                'route -n get default | grep \'interface:\' | grep -o \'[^ ]*$\'',
+                shell=True, capture_output=True, check=True)
+            network_interface = output.stdout.decode().strip()
+        except subprocess.CalledProcessError:
+            pass
+    return network_interface
+
+def csv_dump(result, path):
     all_runs = result.get_all_runs()
     id2conf = result.get_id2config_mapping()
-    with open(Path(path) / "results.csv", "w") as csvfile:
-        print("id, budget, loss, planner, model_based", file=csvfile)
+    with open(path, "w") as csvfile:
+        print("id,budget,loss,planner,model_based", file=csvfile)
         for run in all_runs:
             config = id2conf[run.config_id]
             planner = config["config"]["planner"]
             model_based = int(config["config_info"]["model_based_pick"])
             print(
-                f"{run.config_id[0]}, {run.budget}, {run.loss}, {planner}, {model_based}",
+                f"\"{run.config_id}\",{run.budget},{run.loss},{planner},{model_based}",
                 file=csvfile,
             )
-
-
-if __name__ == "__main__":
-    if len(sys.argv) == 1:
-        print(f"Usage: {sys.argv[0]} <results_dir1> [<results_dir2> ...]\n")
-        exit(-1)
-    for path in sys.argv[1:]:
-        planner_plot(path)

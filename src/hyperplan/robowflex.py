@@ -40,7 +40,7 @@ import logging
 import socket
 import signal
 import psutil
-import time
+#import time
 import random
 from tempfile import mkstemp
 from collections import defaultdict
@@ -48,7 +48,7 @@ from pathlib import Path
 import numpy as np
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
-from . import quantile_with_fallback, nanquantile_with_fallback
+from .util import quantile_with_fallback
 from .base_worker import BaseWorker
 
 def is_port_in_use(port):

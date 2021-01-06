@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 ######################################################################
 # Software License Agreement (BSD License)
 #
@@ -34,12 +35,18 @@
 
 # Author: Mark Moll
 
-from . import omplapp, robowflex
-from .util import default_network_interface, csv_dump
+import sys
+from pathlib import Path
+import hpbandster.core.result as hpres
+from hyperplan import csv_dump
 
-worker_types = {
-    ('omplapp', 'speed'): omplapp.SpeedWorker,
-    ('omplapp', 'speed_kinodynamic'): omplapp.SpeedKinodynamicWorker,
-    ('omplapp', 'opt') : omplapp.OptWorker,
-    ('robowflex', 'speed'): robowflex.SpeedWorker
-}
+def pkl_to_csv(path):
+    result = hpres.logged_results_to_HBS_result(path)
+    csv_dump(result, Path(path) / "results.csv")
+
+if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        print(f"Usage: {sys.argv[0]} <results_dir1> [<results_dir2> ...]\n")
+        exit(-1)
+    for path in sys.argv[1:]:
+        pkl_to_csv(path)
