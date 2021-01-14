@@ -145,7 +145,7 @@ class SpeedWorker(RobowflexBaseWorker):
                          *args, **kwargs)
 
     def loss(self, budget, results):
-        return np.sum([quantile_with_fallback(t[:-1], budget + d[-1]*d[-1])
+        return np.mean([quantile_with_fallback(t[:-1], budget + d[-1]*d[-1])
                        for t,d in zip(results['time'], results['goal_distance'])])
 
     def progress_loss(self, budget, progress_data):
