@@ -306,7 +306,7 @@ class OptWorker(OmplappBaseWorker):
                 "AnytimePathShortening",
                 "BITstar",
                 "CForest",
-                "FMT",
+                # "FMT",
                 # 'LazyLBTRRT',
                 # 'LazyPRMstar',
                 "LBTRRT",
@@ -350,7 +350,7 @@ class OptWorker(OmplappBaseWorker):
             "focus_search", lower=0, upper=1, default_value=1
         )
         samples_per_batch = CSH.UniformIntegerHyperparameter(
-            "samples_per_batch", lower=1, upper=1000000, default_value=100
+            "samples_per_batch", lower=1, upper=10000, default_value=100, log=True
         )
 
         cs.add_hyperparameters(
@@ -378,7 +378,7 @@ class OptWorker(OmplappBaseWorker):
                 CS.OrConjunction(
                     CS.EqualsCondition(use_k_nearest, planner, "AITstar"),
                     CS.EqualsCondition(use_k_nearest, planner, "BITstar"),
-                    CS.EqualsCondition(use_k_nearest, planner, "FMT"),
+                    #CS.EqualsCondition(use_k_nearest, planner, "FMT"),
                     CS.EqualsCondition(use_k_nearest, planner, "RRTstar"),
                     CS.EqualsCondition(use_k_nearest, planner, "RRTXstatic"),
                 ),
@@ -509,11 +509,11 @@ class OptWorker(OmplappBaseWorker):
         cs.add_condition(CS.EqualsCondition(num_threads, planner, "CForest"))
 
         # FMT
-        num_samples = CSH.UniformIntegerHyperparameter(
-            "num_samples", lower=1000, upper=50000, default_value=1000, log=True
-        )
-        cs.add_hyperparameter(num_samples)
-        cs.add_condition(CS.EqualsCondition(num_samples, planner, "FMT"))
+        #num_samples = CSH.UniformIntegerHyperparameter(
+        #    "num_samples", lower=1000, upper=50000, default_value=1000, log=True
+        #)
+        #cs.add_hyperparameter(num_samples)
+        #cs.add_condition(CS.EqualsCondition(num_samples, planner, "FMT"))
 
         # RRT*
         delay_collision_checking = CSH.UniformIntegerHyperparameter(
