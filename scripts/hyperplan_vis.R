@@ -33,7 +33,7 @@
 #  POSSIBILITY OF SUCH DAMAGE.
 ######################################################################
 
-library(dplyr, warn.conflicts=FALSE, quietly=TRUE)
+library(dplyr, warn.conflicts = FALSE, quietly = TRUE)
 library(ggplot2)
 library(ggthemes)
 library(ggbeeswarm)
@@ -41,43 +41,45 @@ library(ggbeeswarm)
 cols <- c(few_pal("Medium")(8), rep("#808080", 10))
 
 read_run <- function(dir) {
-    df <- read.csv(paste(dir, '/results.csv', sep=""), na.strings=c("NA", "None", "NaN", "nan"))
+    df <- read.csv(paste(dir, "/results.csv", sep = ""), na.strings = c("NA", "None", "NaN", "nan"))
     df$run.id <- basename(dir)
     df
 }
 
 generate_plots <- function(dirs) {
     dfs <- lapply(dirs, read_run)
-    #cat(paste("test", dfs))
     df <- bind_rows(dfs)
-    #cat(paste(head(df)))
-    df$budget = factor(signif(df$budget, 2))
-    df$model_based = factor(df$model_based, labels=c("random", "model-based"))
-    df <- df %>% add_count(planner) %>% transform(planner=reorder(planner, -n))
-    loss <- ggplot(df, aes(x=budget, y=loss)) + 
-        geom_quasirandom(aes(color=planner, alpha=I(.5))) +
-        scale_y_log10(breaks=c(1,10,100,1000,10000,100000),
-                      labels=c("1", "10", "100", "1000", "10000", "100000")) +
-        xlab('budget (seconds)') +
+    df$budget <- factor(signif(df$budget, 2))
+    df$model_based <- factor(df$model_based, labels = c("random", "model-based"))
+    df <- df %>%
+        add_count(planner) %>%
+        transform(planner = reorder(planner, -n))
+    loss <- ggplot(df, aes(x = budget, y = loss)) +
+        geom_quasirandom(aes(color = planner, alpha = I(.5))) +
+        scale_y_log10(
+            breaks = c(1, 10, 100, 1000, 10000, 100000),
+            labels = c("1", "10", "100", "1000", "10000", "100000")
+        ) +
+        xlab("budget (seconds)") +
         theme_tufte() +
-        scale_color_manual(values=cols) +
-        facet_grid(rows=vars(run.id))
-    ggsave('loss.pdf', width=6.5, height=6, units="in", scale=2)
+        scale_color_manual(values = cols) +
+        facet_grid(rows = vars(run.id))
+    ggsave("loss.pdf", width = 6.5, height = 3, units = "in", scale = 1.3)
     #    planners <- ggplot(df, aes(budget)) +
-#        geom_bar(aes(fill=planner), position="fill") +
-#        xlab('budget (s)') +
-#        ylab('fraction') +
-#        theme_tufte() +
-#        scale_fill_manual(values=cols)
-#    ggsave(paste(dir, '/planners.png', sep=""))
-#    model_based <- ggplot(df, aes(budget)) +
-#        geom_bar(aes(fill=model_based), position="fill") +
-#        xlab('budget (s)') +
-#        ylab('fraction') +
-#        labs(fill="") +
-#        theme_tufte() +
-#        scale_fill_manual(values=cols)
-#    ggsave(paste(dir, '/model_based.png', sep=""))
+    #        geom_bar(aes(fill=planner), position="fill") +
+    #        xlab('budget (s)') +
+    #        ylab('fraction') +
+    #        theme_tufte() +
+    #        scale_fill_manual(values=cols)
+    #    ggsave(paste(dir, '/planners.png', sep=""))
+    #    model_based <- ggplot(df, aes(budget)) +
+    #        geom_bar(aes(fill=model_based), position="fill") +
+    #        xlab('budget (s)') +
+    #        ylab('fraction') +
+    #        labs(fill="") +
+    #        theme_tufte() +
+    #        scale_fill_manual(values=cols)
+    #    ggsave(paste(dir, '/model_based.png', sep=""))
 }
 
-generate_plots(commandArgs(trailingOnly=TRUE))
+generate_plots(commandArgs(trailingOnly = TRUE))

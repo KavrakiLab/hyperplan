@@ -36,53 +36,89 @@
 
 # Author: Mark Moll
 
-import platform
-import subprocess
 import argparse
 import logging
 import hpbandster.core.nameserver as hpns
 import hpbandster.core.result as hpres
-from hyperplan import omplapp, robowflex, default_network_interface, worker_types
+from hyperplan import default_network_interface, worker_types
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
-
-    parser = argparse.ArgumentParser(description='Motion Planning Hyperparameter Optimization.',
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--budget', type=float, default=6,
-                        help='Budget used for optimization.')
-    parser.add_argument('--nic_name', type=str, default=default_network_interface(),
-                        help='Which network interface to use for communication.')
-    parser.add_argument('--opt', type=str, choices={key[1] for key in worker_types.keys()}, default='speed',
-                        help='Type of hyperparameter optimization to perform')
-    parser.add_argument('--backend', type=str, choices={key[0] for key in worker_types.keys()}, default='omplapp',
-                        help='Backend used for evaluating planner configurations')
-    parser.add_argument('--param_id', type=str, default=None,
-                        help='Id of the form 1,2,3, corresponding to the hyperparameter config id in the results.pkl file in the working directory')
-    parser.add_argument('--working_dir', type=str, required=True,
-                        help='A directory that is accessible for all processes, e.g. a NFS share.')
-    parser.add_argument('config', nargs='+', type=str,
-                        help='configuration file/directory specifying a benchmark problem')
+    parser = argparse.ArgumentParser(
+        description="Motion Planning Hyperparameter Optimization.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "--budget", type=float, default=6, help="Budget used for optimization."
+    )
+    parser.add_argument(
+        "--nic_name",
+        type=str,
+        default=default_network_interface(),
+        help="Which network interface to use for communication.",
+    )
+    parser.add_argument(
+        "--opt",
+        type=str,
+        choices={key[1] for key in worker_types.keys()},
+        default="speed",
+        help="Type of hyperparameter optimization to perform",
+    )
+    parser.add_argument(
+        "--backend",
+        type=str,
+        choices={key[0] for key in worker_types.keys()},
+        default="omplapp",
+        help="Backend used for evaluating planner configurations",
+    )
+    parser.add_argument(
+        "--param_id",
+        type=str,
+        default=None,
+        help="Id of the form 1,2,3, corresponding to the hyperparameter config id in the results.pkl file in the working directory",
+    )
+    parser.add_argument(
+        "--working_dir",
+        type=str,
+        required=True,
+        help="A directory that is accessible for all processes, e.g. a NFS share.",
+    )
+    parser.add_argument(
+        "config",
+        nargs="+",
+        type=str,
+        help="configuration file/directory specifying a benchmark problem",
+    )
 
     args = parser.parse_args()
     logged_results = hpres.logged_results_to_HBS_result(args.working_dir)
     id2conf = logged_results.get_id2config_mapping()
-    selected_id = logged_results.get_incumbent_id() if args.param_id==None else \
-        tuple([int(s) for s in args.param_id.split(',')])
-    config = id2conf[selected_id]['config']
+    selected_id = (
+        logged_results.get_incumbent_id()
+        if args.param_id == None
+        else tuple([int(s) for s in args.param_id.split(",")])
+    )
+    config = id2conf[selected_id]["config"]
 
     host = hpns.nic_name_to_host(args.nic_name)
     WorkerType = worker_types[(args.backend, args.opt)]
-    NS = hpns.NameServer(run_id=0,
-                         host=host, port=0,
-                         working_directory=args.working_dir)
+    NS = hpns.NameServer(
+        run_id=0, host=host, port=0, working_directory=args.working_dir
+    )
     ns_host, ns_port = NS.start()
-    w = WorkerType(config_files=args.config,
-                   run_id=0,
-                   host=host,
-                   nameserver=ns_host,
-                   nameserver_port=ns_port)
-    results = w.compute(config_id=None, config=config, budget=args.budget, working_directory=args.working_dir)
-    print(f'id={selected_id}, config={config}, input={args.config}')
+    w = WorkerType(
+        config_files=args.config,
+        run_id=0,
+        host=host,
+        nameserver=ns_host,
+        nameserver_port=ns_port,
+    )
+    results = w.compute(
+        config_id=None,
+        config=config,
+        budget=args.budget,
+        working_directory=args.working_dir,
+    )
+    print(f"id={selected_id}, config={config}, input={args.config}")
     print(results)

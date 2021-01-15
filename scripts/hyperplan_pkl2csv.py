@@ -40,9 +40,11 @@ from pathlib import Path
 import hpbandster.core.result as hpres
 from hyperplan import csv_dump
 
+
 def pkl_to_csv(path):
     result = hpres.logged_results_to_HBS_result(path)
     csv_dump(result, Path(path) / "results.csv")
+
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:

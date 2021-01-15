@@ -38,31 +38,42 @@ import platform
 import subprocess
 import numpy as np
 
-def quantile_with_fallback(x, fallback, q=.7):
+
+def quantile_with_fallback(x, fallback, q=0.7):
     return np.quantile(x, q) if len(x) > 0 else fallback
-def nanquantile_with_fallback(x, fallback, q=.7):
+
+
+def nanquantile_with_fallback(x, fallback, q=0.7):
     return np.nanquantile(x, q) if len(x) > 0 else fallback
+
 
 def default_network_interface():
     operating_system = platform.system()
-    network_interface = 'eth0'
-    if operating_system == 'Linux':
+    network_interface = "eth0"
+    if operating_system == "Linux":
         try:
             output = subprocess.run(
-                'route | grep \'^default\' | grep -v wlx | grep -o \'[^ ]*$\'',
-                shell=True, capture_output=True, check=True)
+                "route | grep '^default' | grep -v wlx | grep -o '[^ ]*$'",
+                shell=True,
+                capture_output=True,
+                check=True,
+            )
             network_interface = output.stdout.decode().strip()
         except subprocess.CalledProcessError:
             pass
-    elif operating_system == 'Darwin':
+    elif operating_system == "Darwin":
         try:
             output = subprocess.run(
-                'route -n get default | grep \'interface:\' | grep -o \'[^ ]*$\'',
-                shell=True, capture_output=True, check=True)
+                "route -n get default | grep 'interface:' | grep -o '[^ ]*$'",
+                shell=True,
+                capture_output=True,
+                check=True,
+            )
             network_interface = output.stdout.decode().strip()
         except subprocess.CalledProcessError:
             pass
     return network_interface
+
 
 def csv_dump(result, path):
     all_runs = result.get_all_runs()
@@ -74,6 +85,6 @@ def csv_dump(result, path):
             planner = config["config"]["planner"]
             model_based = int(config["config_info"]["model_based_pick"])
             print(
-                f"\"{run.config_id}\",{run.budget},{run.loss},{planner},{model_based}",
+                f'"{run.config_id}",{run.budget},{run.loss},{planner},{model_based}',
                 file=csvfile,
             )
