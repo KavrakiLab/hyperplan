@@ -6,7 +6,7 @@ find_package(robowflex_ompl)
 catkin_python_setup()
 catkin_package()
 
-if(robowflex_library_FOUND)
+if(robowflex_ompl_FOUND)
     add_executable(robowflex_helper src/robowflex_helper.cpp)
     target_include_directories(robowflex_helper PRIVATE ${robowflex_ompl_INCLUDE_DIRS})
     target_link_libraries(robowflex_helper ${robowflex_ompl_LIBRARIES})

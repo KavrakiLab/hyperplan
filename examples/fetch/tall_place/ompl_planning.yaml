@@ -1,0 +1,9 @@
+planner_configs:
+  planner:
+    type: geometric::{planner}
+{params}
+arm_with_torso:
+  planner_configs:
+    - planner
+  {projection}
+  longest_valid_segment_fraction: 0.005

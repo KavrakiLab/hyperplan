@@ -38,8 +38,10 @@ from . import omplapp, robowflex
 from .util import default_network_interface, csv_dump
 
 worker_types = {
-    ('omplapp', 'speed'): omplapp.SpeedWorker,
-    ('omplapp', 'speed_kinodynamic'): omplapp.SpeedKinodynamicWorker,
-    ('omplapp', 'opt') : omplapp.OptWorker,
-    ('robowflex', 'speed'): robowflex.SpeedWorker
+    ("omplapp", "speed"): omplapp.SpeedWorker,
+    ("omplapp", "speed_kinodynamic"): omplapp.SpeedKinodynamicWorker,
+    ("omplapp", "opt"): omplapp.OptWorker,
+    ("robowflex", "speed"): robowflex.SpeedWorker,
+    ("robowflex", "speed_kinodynamic"): robowflex.SpeedKinodynamicWorker,
+    ("robowflex", "opt"): robowflex.OptWorker,
 }

@@ -55,12 +55,6 @@ if __name__ == "__main__":
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
-        "--min_budget",
-        type=float,
-        default=6,
-        help="Minimum budget used during the optimization.",
-    )
-    parser.add_argument(
         "--max_budget",
         type=float,
         default=3600,
@@ -172,7 +166,7 @@ if __name__ == "__main__":
         nameserver=ns_host,
         nameserver_port=ns_port,
         result_logger=result_logger,
-        min_budget=args.min_budget,
+        min_budget=args.max_budget * 3.**-args.n_iterations,
         max_budget=args.max_budget,
         random_fraction=args.random_fraction,
     )

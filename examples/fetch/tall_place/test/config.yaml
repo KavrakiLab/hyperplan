@@ -1,0 +1,8 @@
+robot_description: package://robowflex_dataset/configs/robots/fetch.yaml
+scene: package://robowflex_dataset/configs/scenes/bookshelf/tall.yaml
+sensors: package://experience_experiments/datasets/IROS2021/configs/sensors_tall.yaml
+ompl_config: package://experience_experiments/datasets/IROS2021/configs/ompl_planning.yaml
+queries: package://experience_experiments/datasets/IROS2021/configs/queries_tall_place.yaml
+variation: package://experience_experiments/datasets/IROS2021/configs/variation_tall.yaml
+planning_group: arm_with_torso
+samples: 500

@@ -1,0 +1,149 @@
+robot_model_name: fetch
+fixed_frame_transforms:
+  - header:
+      frame_id: base_link
+    transform:
+      rotation: [0, 0, 0, 1]
+      translation: [0, 0, 0]
+    child_frame_id: base_link
+allowed_collision_matrix:
+  entry_values:
+    - [false, true, true, false, true, false, false, true, true, false, true, true, false, true, true, true, true, true, true, false, false]
+    - [true, false, true, true, true, false, false, true, true, false, true, true, false, true, true, true, true, true, true, false, false]
+    - [true, true, false, false, true, false, false, true, true, false, true, true, false, true, true, true, true, true, true, false, false]
+    - [false, true, false, false, true, true, true, false, false, true, true, false, true, true, true, true, false, false, true, true, true]
+    - [true, true, true, true, false, true, false, true, true, false, true, true, true, true, true, true, true, true, true, false, true]
+    - [false, false, false, true, true, false, true, false, false, true, true, false, true, false, true, true, false, false, true, true, true]
+    - [false, false, false, true, false, true, false, false, false, true, false, false, true, false, false, false, false, false, true, true, true]
+    - [true, true, true, false, true, false, false, false, true, false, true, true, false, true, true, true, true, true, false, false, false]
+    - [true, true, true, false, true, false, false, true, false, false, true, true, false, true, true, true, true, true, false, false, false]
+    - [false, false, false, true, false, true, true, false, false, false, true, false, true, false, false, false, false, false, true, true, true]
+    - [true, true, true, true, true, true, false, true, true, true, false, true, true, true, true, true, true, true, true, true, true]
+    - [true, true, true, false, true, false, false, true, true, false, true, false, true, true, true, true, true, true, true, false, false]
+    - [false, false, false, true, true, true, true, false, false, true, true, true, false, false, false, false, false, false, true, true, true]
+    - [true, true, true, true, true, false, false, true, true, false, true, true, false, false, true, true, true, true, true, false, true]
+    - [true, true, true, true, true, true, false, true, true, false, true, true, false, true, false, true, true, false, true, true, true]
+    - [true, true, true, true, true, true, false, true, true, false, true, true, false, true, true, false, true, true, false, true, false]
+    - [true, true, true, false, true, false, false, true, true, false, true, true, false, true, true, true, false, true, false, false, false]
+    - [true, true, true, false, true, false, false, true, true, false, true, true, false, true, false, true, true, false, false, false, false]
+    - [true, true, true, true, true, true, true, false, false, true, true, true, true, true, true, false, false, false, false, true, true]
+    - [false, false, false, true, false, true, true, false, false, true, true, false, true, false, true, true, false, false, true, false, true]
+    - [false, false, false, true, true, true, true, false, false, true, true, false, true, true, true, false, false, false, true, true, false]
+  entry_names: [base_link, bellows_link, bellows_link2, elbow_flex_link, estop_link, forearm_roll_link, gripper_link, head_pan_link, head_tilt_link, l_gripper_finger_link, l_wheel_link, laser_link, r_gripper_finger_link, r_wheel_link, shoulder_lift_link, shoulder_pan_link, torso_fixed_link, torso_lift_link, upperarm_roll_link, wrist_flex_link, wrist_roll_link]
+name: ""
+robot_state:
+  joint_state:
+    header:
+      frame_id: base_link
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+    position: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+world:
+  collision_objects:
+    - header:
+        frame_id: base_link
+      primitives:
+        - type: cylinder
+          dimensions: [0.12, 0.03]
+      primitive_poses:
+        - orientation: [0, 0, 0.2679100757543996, 0.9634439222441916]
+          position: [0.781889848909565, 0.3184726255178246, 0.8797869811687027]
+      id: Can1
+    - id: Cube
+      primitives:
+        - type: box
+          dimensions: [0.25, 0.25, 0.25]
+      header:
+        frame_id: base_link
+      primitive_poses:
+        - position: [0.5332976033218367, 0.6009152321980225, 0.9297869811687026]
+          orientation: [0, 0, 0.003859268241481662, 0.9999925529965913]
+    - primitive_poses:
+        - position: [1.216845589588228, 0.531600516361889, 0.9297869811687026]
+          orientation: [0, 0, 0.4281099911761825, 0.903726637570858]
+      header:
+        frame_id: base_link
+      id: Object1
+      primitives:
+        - dimensions: [0.35, 0.05]
+          type: cylinder
+    - primitives:
+        - dimensions: [0.2, 0.02, 0.4]
+          type: box
+      primitive_poses:
+        - orientation: [0, 0, 0.7950643250633544, 0.6065251182033211]
+          position: [1.08871779931955, 0.3353300607439906, 0.9797869811687027]
+      header:
+        frame_id: base_link
+      id: Object2
+    - primitive_poses:
+        - position: [0.5045002189720905, 0.3915036849123036, 0.9797869811687027]
+          orientation: [0, 0, 0.5311645477821971, 0.8472686841724614]
+      id: Object3
+      primitives:
+        - dimensions: [0.02, 0.2, 0.4]
+          type: box
+      header:
+        frame_id: base_link
+    - header:
+        frame_id: base_link
+      id: Object4
+      primitive_poses:
+        - orientation: [0, 0, 0.7320343330825404, 0.6812677411916702]
+          position: [0.8346091735139869, 0.06662402083733954, 0.9797869811687027]
+      primitives:
+        - dimensions: [0.2, 0.05, 0.35]
+          type: box
+    - header:
+        frame_id: base_link
+      primitives:
+        - dimensions: [0.2, 0.05, 0.35]
+          type: box
+      id: Object5
+      primitive_poses:
+        - orientation: [0, 0, 0.7354630688446491, 0.6775648119299077]
+          position: [0.8428502633645963, 0.70579522945225, 0.9797869811687027]
+    - header:
+        frame_id: base_link
+      primitive_poses:
+        - position: [0.9129916646832771, 1.421885190482391, 0.4297869811687026]
+          orientation: [0, 0, 0.2679100757543996, 0.9634439222441916]
+      id: table_leg_left_back
+      primitives:
+        - type: box
+          dimensions: [0.05, 0.05, 0.7]
+    - header:
+        frame_id: base_link
+      id: table_leg_left_front
+      primitives:
+        - type: box
+          dimensions: [0.05, 0.05, 0.7]
+      primitive_poses:
+        - position: [0.1421881203265875, 0.957275788933988, 0.4297869811687026]
+          orientation: [0, 0, 0.2679100757543996, 0.9634439222441916]
+    - header:
+        frame_id: base_link
+      primitive_poses:
+        - orientation: [0, 0, 0.2679100757543996, 0.9634439222441916]
+          position: [1.790587200941371, -0.0340770599691335, 0.4297869811687026]
+      id: table_leg_right_back
+      primitives:
+        - type: box
+          dimensions: [0.05, 0.05, 0.7]
+    - header:
+        frame_id: base_link
+      id: table_leg_right_front
+      primitive_poses:
+        - orientation: [0, 0, 0.2679100757543996, 0.9634439222441916]
+          position: [1.019783656584682, -0.4986864615175364, 0.4297869811687026]
+      primitives:
+        - type: box
+          dimensions: [0.05, 0.05, 0.7]
+    - primitive_poses:
+        - position: [0.9663876606339795, 0.4615993644824273, 0.7797869811687026]
+          orientation: [0, 0, 0.2679100757543996, 0.9634439222441916]
+      header:
+        frame_id: base_link
+      id: table_top
+      primitives:
+        - dimensions: [1.2, 2, 0.04]
+          type: box
