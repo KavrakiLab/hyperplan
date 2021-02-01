@@ -86,20 +86,20 @@ class RobowflexBaseWorker(BaseWorker):
         for scene, request in self.problems:
             try:
                 log_dir = abs_path + "_logs/"
-                subprocess.run(
-                    [
-                        "rosrun",
-                        "hyperplan",
-                        "robowflex_helper",
-                        str(scene),
-                        str(request),
-                        abs_path,
-                        str(duration),
-                        str(num_runs),
-                        log_dir,
-                    ],
-                    check=True,
-                )
+                cmdline = [
+                    "rosrun",
+                    "hyperplan",
+                    "robowflex_helper",
+                    str(scene),
+                    str(request),
+                    abs_path,
+                    str(duration),
+                    str(num_runs),
+                    log_dir,
+                ]
+                if self.simplify:
+                    cmdline.append("simplify")
+                subprocess.run(cmdline, check=True)
             except subprocess.CalledProcessError as err:
                 logging.warning(
                     f"This command terminated with error code {err.returncode}:\n\t{err.cmd}"

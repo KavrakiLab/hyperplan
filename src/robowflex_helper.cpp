@@ -75,7 +75,7 @@ int main(int argc, char **argv)
     {
         ROS_FATAL_STREAM("Command line syntax:\n\t" << argv[0]
                                                     << " scene.yaml request.yaml ompl_planning.yaml time "
-                                                       "num_runs log_dir");
+                                                       "num_runs log_dir [simplify]");
         exit(-1);
     }
     std::string scene_file_name(argv[1]), request_file_name(argv[2]), planner_config_file_name(argv[3]);
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
     }
     auto planner = std::make_shared<OMPL::OMPLInterfacePlanner>(robot, "default");
     OMPL::Settings settings;
-    settings.simplify_solutions = true;//rviz_only;
+    settings.simplify_solutions = rviz_only || (argc > 7);
     planner->initialize(planner_config_file_name, settings);
     auto request = std::make_shared<MotionRequestBuilder>(planner, GROUP);
     if (!request->fromYAMLFile(request_file_name))
