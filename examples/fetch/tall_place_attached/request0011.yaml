@@ -1,0 +1,52 @@
+max_velocity_scaling_factor: 0
+planner_id: BKPIECEGood
+group_name: arm_with_torso
+max_acceleration_scaling_factor: 0
+start_state:
+  attached_collision_objects:
+    - link_name: gripper_link
+      touch_links:
+        - gripper_link
+        - l_gripper_finger_link
+        - r_gripper_finger_link
+      object:
+        primitive_poses:
+          - position: [-0.001400209931991414, 0.001477855088417468, -0.0506794792281573]
+            orientation: [-0.003029006561863347, -0.00407157802166393, 0.004581379659958499, 0.9999766288929322]
+        id: Can4
+        header:
+          frame_id: gripper_link
+        primitives:
+          - type: cylinder
+            dimensions: [0.14, 0.03]
+      weight: 0
+  joint_state:
+    position: [0, 0, 4.926296488132757e-06, 0.05, 0, 0, 0.8141885727820571, -0.2724440302420656, 1.851533771827929, -1.01796973330485, 3.141592032361011, -0.2068279905376237, 1.188222819589842, 0.05, 0.05]
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+    header:
+      frame_id: base_link
+num_planning_attempts: 2
+allowed_planning_time: 60
+workspace_parameters:
+  max_corner: [1, 1, 1]
+  min_corner: [-1, -1, -1]
+  header:
+    frame_id: ""
+goal_constraints:
+  - joint_constraints:
+      - position: 0.38615
+        joint_name: torso_lift_joint
+      - joint_name: shoulder_pan_joint
+        position: 0.04672898638185431
+      - joint_name: shoulder_lift_joint
+        position: -0.03775541964325396
+      - joint_name: upperarm_roll_joint
+        position: 1.820024522024863
+      - position: -0.7930943689652672
+        joint_name: elbow_flex_joint
+      - joint_name: forearm_roll_joint
+        position: 3.108050336307801
+      - joint_name: wrist_flex_joint
+        position: -0.8202855311387303
+      - position: 1.370186017191011
+        joint_name: wrist_roll_joint

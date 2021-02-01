@@ -1,0 +1,52 @@
+start_state:
+  joint_state:
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+    header:
+      frame_id: base_link
+    position: [0, 0, 1.934701756376257e-08, 0.05, 0, 0, -0.7462061896544269, -0.1325673293826583, 1.566330222474772, -1.184316216497117, -0.2110465676480071, 0.5043830379314798, -1.470793125208234, 0.05, 0.05]
+  attached_collision_objects:
+    - object:
+        header:
+          frame_id: gripper_link
+        primitives:
+          - type: cylinder
+            dimensions: [0.14, 0.03]
+        primitive_poses:
+          - position: [-0.001839973403680473, 0.002479248407845913, -0.051052735155384]
+            orientation: [0.002322060063619533, 0.001970069990108836, -0.00305460363598249, 0.9999906980856982]
+        id: Can4
+      link_name: gripper_link
+      weight: 0
+      touch_links:
+        - gripper_link
+        - l_gripper_finger_link
+        - r_gripper_finger_link
+allowed_planning_time: 60
+planner_id: BKPIECEGood
+goal_constraints:
+  - joint_constraints:
+      - position: 0.385724150859229
+        joint_name: torso_lift_joint
+      - position: -1.442504228253042
+        joint_name: shoulder_pan_joint
+      - position: 0.09624483995548927
+        joint_name: shoulder_lift_joint
+      - joint_name: upperarm_roll_joint
+        position: -1.728804942322704
+      - position: 0.6665320816546135
+        joint_name: elbow_flex_joint
+      - position: -2.994562841433544
+        joint_name: forearm_roll_joint
+      - position: 0.649479788992218
+        joint_name: wrist_flex_joint
+      - position: -1.524711986924915
+        joint_name: wrist_roll_joint
+workspace_parameters:
+  max_corner: [1, 1, 1]
+  header:
+    frame_id: ""
+  min_corner: [-1, -1, -1]
+max_velocity_scaling_factor: 0
+max_acceleration_scaling_factor: 0
+group_name: arm_with_torso
+num_planning_attempts: 2

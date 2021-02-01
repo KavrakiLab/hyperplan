@@ -1,0 +1,52 @@
+max_velocity_scaling_factor: 0
+start_state:
+  attached_collision_objects:
+    - object:
+        id: Can1
+        header:
+          frame_id: gripper_link
+        primitive_poses:
+          - position: [-0.001669715066924038, 0.004590952076506866, -0.04523819018145803]
+            orientation: [0.003317400329412394, -0.0006140201727471147, 0.004483521618760396, 0.9999842578101799]
+        primitives:
+          - type: cylinder
+            dimensions: [0.14, 0.03]
+      touch_links:
+        - gripper_link
+        - l_gripper_finger_link
+        - r_gripper_finger_link
+      link_name: gripper_link
+      weight: 0
+  joint_state:
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+    header:
+      frame_id: base_link
+    position: [0, 0, 0.3555415310280717, 0.05, 0, 0, 1.499119073449365, -1.00846380909668, -0.6952105029184853, 1.099281476760176, 1.891128770042138, 0.6399519965344919, -1.543095621699796, 0.05, 0.05]
+workspace_parameters:
+  min_corner: [-1, -1, -1]
+  header:
+    frame_id: ""
+  max_corner: [1, 1, 1]
+goal_constraints:
+  - joint_constraints:
+      - position: 0.008291986952454214
+        joint_name: torso_lift_joint
+      - joint_name: shoulder_pan_joint
+        position: 1.573419478676126
+      - joint_name: shoulder_lift_joint
+        position: -1.126994265414378
+      - joint_name: upperarm_roll_joint
+        position: -3.141592645443511
+      - joint_name: elbow_flex_joint
+        position: -1.046713616248251
+      - joint_name: forearm_roll_joint
+        position: -0.44995412874114
+      - joint_name: wrist_flex_joint
+        position: -0.08323956882791338
+      - position: -2.717457726252928
+        joint_name: wrist_roll_joint
+max_acceleration_scaling_factor: 0
+planner_id: BKPIECEGood
+group_name: arm_with_torso
+num_planning_attempts: 2
+allowed_planning_time: 60

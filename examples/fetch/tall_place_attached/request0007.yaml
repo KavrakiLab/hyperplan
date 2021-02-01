@@ -1,0 +1,52 @@
+planner_id: BKPIECEGood
+group_name: arm_with_torso
+allowed_planning_time: 60
+max_velocity_scaling_factor: 0
+start_state:
+  joint_state:
+    header:
+      frame_id: base_link
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+    position: [0, 0, 0.3851500429662861, 0.05, 0, 0, 0.862811262719266, 1.257374666286158, 0.1436842378635007, -1.303392214535058, 0.004756946466918883, 0.03756753854226665, -0.05183149356270352, 0.05, 0.05]
+  attached_collision_objects:
+    - object:
+        id: Can4
+        header:
+          frame_id: gripper_link
+        primitive_poses:
+          - position: [-0.001809985974474349, 0.003419957990819024, -0.05174864051892425]
+            orientation: [0.001453189437688652, 0.002716448659820922, -0.001779952331352978, 0.9999936704383857]
+        primitives:
+          - dimensions: [0.14, 0.03]
+            type: cylinder
+      link_name: gripper_link
+      weight: 0
+      touch_links:
+        - gripper_link
+        - l_gripper_finger_link
+        - r_gripper_finger_link
+max_acceleration_scaling_factor: 0
+workspace_parameters:
+  header:
+    frame_id: ""
+  max_corner: [1, 1, 1]
+  min_corner: [-1, -1, -1]
+goal_constraints:
+  - joint_constraints:
+      - position: 0.3302851895691318
+        joint_name: torso_lift_joint
+      - joint_name: shoulder_pan_joint
+        position: 0.9010438606902342
+      - joint_name: shoulder_lift_joint
+        position: 6.630607254548405e-05
+      - position: -1.640364111851518
+        joint_name: upperarm_roll_joint
+      - position: 1.309743899179669
+        joint_name: elbow_flex_joint
+      - joint_name: forearm_roll_joint
+        position: -3.138140582295838
+      - position: 1.127308316762086
+        joint_name: wrist_flex_joint
+      - joint_name: wrist_roll_joint
+        position: -1.48392808355643
+num_planning_attempts: 2

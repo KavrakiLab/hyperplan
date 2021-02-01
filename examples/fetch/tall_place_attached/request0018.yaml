@@ -1,0 +1,52 @@
+workspace_parameters:
+  max_corner: [1, 1, 1]
+  min_corner: [-1, -1, -1]
+  header:
+    frame_id: ""
+allowed_planning_time: 60
+max_velocity_scaling_factor: 0
+start_state:
+  attached_collision_objects:
+    - link_name: gripper_link
+      weight: 0
+      object:
+        primitives:
+          - type: cylinder
+            dimensions: [0.14, 0.03]
+        primitive_poses:
+          - orientation: [-0.0005768017296403585, 0.004270459020798431, -0.0007954635285534383, 0.9999903988125541]
+            position: [-0.001922180149666275, -0.001567415275633616, -0.05229563926400838]
+        header:
+          frame_id: gripper_link
+        id: Can1
+      touch_links:
+        - gripper_link
+        - l_gripper_finger_link
+        - r_gripper_finger_link
+  joint_state:
+    header:
+      frame_id: base_link
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+    position: [0, 0, 0.38615, 0.05, 0, 0, 1.013795546636915, -0.6918948644005312, -2.373126598050598, -0.6597604760008092, 1.230052149803275, 0.5962850557715441, 1.28729022501138, 0.05, 0.05]
+num_planning_attempts: 2
+goal_constraints:
+  - joint_constraints:
+      - position: 0.3861499807126799
+        joint_name: torso_lift_joint
+      - joint_name: shoulder_pan_joint
+        position: 0.9221678371913787
+      - position: 0.1794534131174958
+        joint_name: shoulder_lift_joint
+      - joint_name: upperarm_roll_joint
+        position: -1.044814846810908
+      - joint_name: elbow_flex_joint
+        position: -0.5639020506969049
+      - position: -0.3266982253811572
+        joint_name: forearm_roll_joint
+      - position: 0.522322883466191
+        joint_name: wrist_flex_joint
+      - joint_name: wrist_roll_joint
+        position: 1.301336144804628
+max_acceleration_scaling_factor: 0
+planner_id: BKPIECEGood
+group_name: arm_with_torso

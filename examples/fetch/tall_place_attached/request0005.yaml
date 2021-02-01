@@ -1,0 +1,52 @@
+max_velocity_scaling_factor: 0
+planner_id: BKPIECEGood
+group_name: arm_with_torso
+num_planning_attempts: 2
+goal_constraints:
+  - joint_constraints:
+      - position: 0.003103448438353579
+        joint_name: torso_lift_joint
+      - position: -0.2463736447356655
+        joint_name: shoulder_pan_joint
+      - position: -1.025474176632215
+        joint_name: shoulder_lift_joint
+      - position: 2.450659226901587
+        joint_name: upperarm_roll_joint
+      - joint_name: elbow_flex_joint
+        position: -0.9763866545642986
+      - position: 0.7940128997013993
+        joint_name: forearm_roll_joint
+      - position: -0.1412158046686389
+        joint_name: wrist_flex_joint
+      - position: 2.717509589962825
+        joint_name: wrist_roll_joint
+workspace_parameters:
+  header:
+    frame_id: ""
+  max_corner: [1, 1, 1]
+  min_corner: [-1, -1, -1]
+allowed_planning_time: 60
+max_acceleration_scaling_factor: 0
+start_state:
+  joint_state:
+    header:
+      frame_id: base_link
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+    position: [0, 0, 0.3456259184326291, 0.05, 0, 0, -1.562653331792114, 1.003866852604483, -0.3535762244771856, -1.089151938910751, 1.650519139532026, 0.4906214751225748, -1.453974321724747, 0.05, 0.05]
+  attached_collision_objects:
+    - link_name: gripper_link
+      touch_links:
+        - gripper_link
+        - l_gripper_finger_link
+        - r_gripper_finger_link
+      object:
+        primitive_poses:
+          - position: [-0.001433407015199117, 0.003150417230379898, -0.05219816301022739]
+            orientation: [0.002165865691609926, -0.0006756418531942794, -0.002959763534799115, 0.999993046142677]
+        id: Can4
+        primitives:
+          - dimensions: [0.14, 0.03]
+            type: cylinder
+        header:
+          frame_id: gripper_link
+      weight: 0

@@ -1,0 +1,52 @@
+allowed_planning_time: 60
+group_name: arm_with_torso
+num_planning_attempts: 2
+max_velocity_scaling_factor: 0
+planner_id: BKPIECEGood
+goal_constraints:
+  - joint_constraints:
+      - joint_name: torso_lift_joint
+        position: 0.38615
+      - position: -0.2036705080420477
+        joint_name: shoulder_pan_joint
+      - joint_name: shoulder_lift_joint
+        position: 0.02735299021733393
+      - joint_name: upperarm_roll_joint
+        position: 1.625581858744431
+      - joint_name: elbow_flex_joint
+        position: -1.14994116299805
+      - position: 0.05197587335450546
+        joint_name: forearm_roll_joint
+      - joint_name: wrist_flex_joint
+        position: 1.031081708520071
+      - joint_name: wrist_roll_joint
+        position: -1.623113083765028
+start_state:
+  attached_collision_objects:
+    - object:
+        primitive_poses:
+          - orientation: [0.004245435004129708, 0.001758378889948313, -0.000566159438892879, 0.9999892818669582]
+            position: [-0.001740972093483228, -0.003110401089206793, -0.04726906165651634]
+        id: Can1
+        header:
+          frame_id: gripper_link
+        primitives:
+          - dimensions: [0.14, 0.03]
+            type: cylinder
+      weight: 0
+      link_name: gripper_link
+      touch_links:
+        - gripper_link
+        - l_gripper_finger_link
+        - r_gripper_finger_link
+  joint_state:
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+    header:
+      frame_id: base_link
+    position: [0, 0, 0.3814420642967865, 0.05, 0, 0, -1.1765347921393, -0.8572996128378695, -2.341461836061509, -0.9838204148518062, -2.24634982148653, 0.1897938401417241, -1.388941783913856, 0.05, 0.05]
+workspace_parameters:
+  max_corner: [1, 1, 1]
+  min_corner: [-1, -1, -1]
+  header:
+    frame_id: ""
+max_acceleration_scaling_factor: 0

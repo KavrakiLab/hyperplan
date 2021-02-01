@@ -1,0 +1,52 @@
+start_state:
+  attached_collision_objects:
+    - object:
+        primitives:
+          - type: cylinder
+            dimensions: [0.14, 0.03]
+        primitive_poses:
+          - position: [-0.001775968909820569, -0.002120104895239283, -0.04540406962289234]
+            orientation: [-0.003729828361723697, -0.0001910671460419664, -0.003471583791587757, 0.9999869999053567]
+        header:
+          frame_id: gripper_link
+        id: Can1
+      touch_links:
+        - gripper_link
+        - l_gripper_finger_link
+        - r_gripper_finger_link
+      weight: 0
+      link_name: gripper_link
+  joint_state:
+    header:
+      frame_id: base_link
+    position: [0, 0, 0.3761615745177252, 0.05, 0, 0, -0.4884147137641166, -0.9666120302466554, -0.8907913626796576, 1.183223745822331, -0.7193610731559881, -0.05034045492564261, 1.183977911225445, 0.05, 0.05]
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+max_velocity_scaling_factor: 0
+allowed_planning_time: 60
+workspace_parameters:
+  header:
+    frame_id: ""
+  max_corner: [1, 1, 1]
+  min_corner: [-1, -1, -1]
+max_acceleration_scaling_factor: 0
+goal_constraints:
+  - joint_constraints:
+      - position: 0.09232567147105053
+        joint_name: torso_lift_joint
+      - joint_name: shoulder_pan_joint
+        position: -0.7277076740127536
+      - joint_name: shoulder_lift_joint
+        position: -0.769017498109186
+      - joint_name: upperarm_roll_joint
+        position: -1.011422632159072
+      - joint_name: elbow_flex_joint
+        position: 1.007065685055481
+      - position: 2.063823066447311
+        joint_name: forearm_roll_joint
+      - joint_name: wrist_flex_joint
+        position: 0.3018638363220192
+      - joint_name: wrist_roll_joint
+        position: -1.421273594423044
+planner_id: BKPIECEGood
+group_name: arm_with_torso
+num_planning_attempts: 2

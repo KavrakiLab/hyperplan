@@ -1,0 +1,52 @@
+workspace_parameters:
+  header:
+    frame_id: ""
+  min_corner: [-1, -1, -1]
+  max_corner: [1, 1, 1]
+goal_constraints:
+  - joint_constraints:
+      - position: 0.3853023447780099
+        joint_name: torso_lift_joint
+      - joint_name: shoulder_pan_joint
+        position: -1.306446978282452
+      - joint_name: shoulder_lift_joint
+        position: 0.04245251059303345
+      - joint_name: upperarm_roll_joint
+        position: -1.615909515288521
+      - joint_name: elbow_flex_joint
+        position: -1.486760320661102
+      - joint_name: forearm_roll_joint
+        position: 3.022534733490322
+      - joint_name: wrist_flex_joint
+        position: -0.5122029988949466
+      - joint_name: wrist_roll_joint
+        position: -1.474822802601726
+planner_id: BKPIECEGood
+max_acceleration_scaling_factor: 0
+allowed_planning_time: 60
+group_name: arm_with_torso
+num_planning_attempts: 2
+max_velocity_scaling_factor: 0
+start_state:
+  attached_collision_objects:
+    - weight: 0
+      link_name: gripper_link
+      touch_links:
+        - gripper_link
+        - l_gripper_finger_link
+        - r_gripper_finger_link
+      object:
+        header:
+          frame_id: gripper_link
+        primitive_poses:
+          - position: [-0.001179846371408555, 0.0007962737100243381, -0.04875695033996807]
+            orientation: [0.001208317833099057, -0.002799982292424362, 0.002532169183596702, 0.999992144062343]
+        id: Can4
+        primitives:
+          - dimensions: [0.14, 0.03]
+            type: cylinder
+  joint_state:
+    position: [0, 0, 0.3860451164679302, 0.05, 0, 0, -0.4616909245716823, 1.394411089437959, -0.3256768582876507, -1.481282939205071, 2.072892840027846, -0.1913611186931072, -2.025215326854565, 0.05, 0.05]
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+    header:
+      frame_id: base_link

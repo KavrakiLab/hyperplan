@@ -1,0 +1,52 @@
+workspace_parameters:
+  max_corner: [1, 1, 1]
+  header:
+    frame_id: ""
+  min_corner: [-1, -1, -1]
+start_state:
+  joint_state:
+    position: [0, 0, 0.385725796200666, 0.05, 0, 0, -0.5903187954989702, 0.9571406887243208, 2.274489213334358, 1.043009511173945, -1.228109180206788, -0.6556929273373128, -1.420009331553066, 0.05, 0.05]
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+    header:
+      frame_id: base_link
+  attached_collision_objects:
+    - object:
+        header:
+          frame_id: gripper_link
+        primitives:
+          - dimensions: [0.14, 0.03]
+            type: cylinder
+        primitive_poses:
+          - orientation: [-0.002913720078781828, -0.001092985033151907, 0.004841293095412442, 0.9999834386129524]
+            position: [-0.001553266388267138, 0.005166515301476993, -0.05443614508340078]
+        id: Can4
+      weight: 0
+      link_name: gripper_link
+      touch_links:
+        - gripper_link
+        - l_gripper_finger_link
+        - r_gripper_finger_link
+num_planning_attempts: 2
+goal_constraints:
+  - joint_constraints:
+      - position: 0.3185859591894364
+        joint_name: torso_lift_joint
+      - joint_name: shoulder_pan_joint
+        position: -1.194980947127813
+      - position: -0.1799424610994407
+        joint_name: shoulder_lift_joint
+      - joint_name: upperarm_roll_joint
+        position: -1.746869227022445
+      - joint_name: elbow_flex_joint
+        position: -1.144493284375804
+      - joint_name: forearm_roll_joint
+        position: -3.141592653589793
+      - position: -0.4551697128801239
+        joint_name: wrist_flex_joint
+      - position: -1.334151088921929
+        joint_name: wrist_roll_joint
+max_acceleration_scaling_factor: 0
+allowed_planning_time: 60
+max_velocity_scaling_factor: 0
+planner_id: BKPIECEGood
+group_name: arm_with_torso

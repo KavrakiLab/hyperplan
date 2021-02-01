@@ -1,0 +1,52 @@
+workspace_parameters:
+  min_corner: [-1, -1, -1]
+  header:
+    frame_id: ""
+  max_corner: [1, 1, 1]
+allowed_planning_time: 60
+goal_constraints:
+  - joint_constraints:
+      - position: 0.1517376352564749
+        joint_name: torso_lift_joint
+      - position: -0.8771768904778904
+        joint_name: shoulder_pan_joint
+      - joint_name: shoulder_lift_joint
+        position: -0.5394496886074172
+      - position: 0.6827041571720915
+        joint_name: upperarm_roll_joint
+      - joint_name: elbow_flex_joint
+        position: 0.5932743994703421
+      - position: 0.3882861594669198
+        joint_name: forearm_roll_joint
+      - joint_name: wrist_flex_joint
+        position: 0.07642026842142699
+      - position: -0.9777443490277725
+        joint_name: wrist_roll_joint
+start_state:
+  joint_state:
+    header:
+      frame_id: base_link
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+    position: [0, 0, 0.38615, 0.05, 0, 0, -1.050582207066094, -0.5487672003724715, 0.2090981923476665, 0.2686081646439432, -2.170588018944557, -0.6202565765398914, 2.078238855990926, 0.05, 0.05]
+  attached_collision_objects:
+    - object:
+        primitive_poses:
+          - orientation: [-0.004630237964637042, 0.002289187279632001, 0.001791892670488474, 0.9999850547076427]
+            position: [-0.001966323937796055, -0.0017732611873576, -0.04762710198443787]
+        header:
+          frame_id: gripper_link
+        primitives:
+          - dimensions: [0.14, 0.03]
+            type: cylinder
+        id: Can1
+      link_name: gripper_link
+      weight: 0
+      touch_links:
+        - gripper_link
+        - l_gripper_finger_link
+        - r_gripper_finger_link
+max_velocity_scaling_factor: 0
+max_acceleration_scaling_factor: 0
+planner_id: BKPIECEGood
+group_name: arm_with_torso
+num_planning_attempts: 2

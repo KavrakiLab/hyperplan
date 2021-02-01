@@ -1,0 +1,52 @@
+max_acceleration_scaling_factor: 0
+allowed_planning_time: 60
+max_velocity_scaling_factor: 0
+start_state:
+  joint_state:
+    header:
+      frame_id: base_link
+    position: [0, 0, 0.3747714136719995, 0.05, 0, 0, -0.9099522353033468, -0.768597956590038, 2.961371455133686, -0.6457392950391093, -1.051810324277437, -0.3430766091812762, -1.97624334207428, 0.05, 0.05]
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+  attached_collision_objects:
+    - object:
+        primitive_poses:
+          - orientation: [-0.001649296508940216, -0.002191445794694738, 0.003209362260767105, 0.9999910886504108]
+            position: [-0.001434718666776358, -0.003100138683987175, -0.04577590822345101]
+        id: Can1
+        primitives:
+          - type: cylinder
+            dimensions: [0.14, 0.03]
+        header:
+          frame_id: gripper_link
+      touch_links:
+        - gripper_link
+        - l_gripper_finger_link
+        - r_gripper_finger_link
+      link_name: gripper_link
+      weight: 0
+group_name: arm_with_torso
+num_planning_attempts: 2
+goal_constraints:
+  - joint_constraints:
+      - position: 0.07565796976687988
+        joint_name: torso_lift_joint
+      - position: -1.230907920741617
+        joint_name: shoulder_pan_joint
+      - joint_name: shoulder_lift_joint
+        position: -0.8829295228227101
+      - joint_name: upperarm_roll_joint
+        position: -3.113495188642917
+      - joint_name: elbow_flex_joint
+        position: -0.8770251157797968
+      - joint_name: forearm_roll_joint
+        position: 1.538461183503111
+      - position: 0.1185084910484025
+        joint_name: wrist_flex_joint
+      - position: 1.588509979318182
+        joint_name: wrist_roll_joint
+planner_id: BKPIECEGood
+workspace_parameters:
+  max_corner: [1, 1, 1]
+  min_corner: [-1, -1, -1]
+  header:
+    frame_id: ""

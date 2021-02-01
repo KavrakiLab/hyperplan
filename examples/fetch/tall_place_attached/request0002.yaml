@@ -1,0 +1,52 @@
+workspace_parameters:
+  header:
+    frame_id: ""
+  min_corner: [-1, -1, -1]
+  max_corner: [1, 1, 1]
+goal_constraints:
+  - joint_constraints:
+      - joint_name: torso_lift_joint
+        position: 0.38615
+      - position: 0.7295340501874915
+        joint_name: shoulder_pan_joint
+      - joint_name: shoulder_lift_joint
+        position: 0.06412011875253822
+      - joint_name: upperarm_roll_joint
+        position: 1.508468856349562
+      - joint_name: elbow_flex_joint
+        position: -0.4879966147425606
+      - joint_name: forearm_roll_joint
+        position: 2.752543052797982
+      - position: 0.102046024846787
+        joint_name: wrist_flex_joint
+      - joint_name: wrist_roll_joint
+        position: 2.056083931069434
+max_acceleration_scaling_factor: 0
+planner_id: BKPIECEGood
+group_name: arm_with_torso
+num_planning_attempts: 2
+allowed_planning_time: 60
+start_state:
+  attached_collision_objects:
+    - link_name: gripper_link
+      object:
+        primitive_poses:
+          - orientation: [-0.004955058045519176, -0.001396911425913903, 0.0005978986807112432, 0.9999865691875073]
+            position: [-0.001407827738736711, -0.002473252297153977, -0.05219527205757191]
+        id: Can4
+        header:
+          frame_id: gripper_link
+        primitives:
+          - dimensions: [0.14, 0.03]
+            type: cylinder
+      touch_links:
+        - gripper_link
+        - l_gripper_finger_link
+        - r_gripper_finger_link
+      weight: 0
+  joint_state:
+    header:
+      frame_id: base_link
+    position: [0, 0, 0.1676548084306143, 0.05, 0, 0, 0.7820942109250879, 0.595268112316829, 0.899983627178583, -1.234772977561938, -3.141592653589793, -0.4102795282103867, 2.445774130024567, 0.05, 0.05]
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+max_velocity_scaling_factor: 0

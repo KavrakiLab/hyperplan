@@ -1,0 +1,52 @@
+max_velocity_scaling_factor: 0
+allowed_planning_time: 60
+workspace_parameters:
+  header:
+    frame_id: ""
+  min_corner: [-1, -1, -1]
+  max_corner: [1, 1, 1]
+goal_constraints:
+  - joint_constraints:
+      - position: 0.38615
+        joint_name: torso_lift_joint
+      - joint_name: shoulder_pan_joint
+        position: -0.6710364750083055
+      - joint_name: shoulder_lift_joint
+        position: 0.1854554146107567
+      - position: 0.8722507416385265
+        joint_name: upperarm_roll_joint
+      - position: -0.4310437668115652
+        joint_name: elbow_flex_joint
+      - position: -0.5139152510263909
+        joint_name: forearm_roll_joint
+      - position: 0.09301346567819346
+        joint_name: wrist_flex_joint
+      - position: -0.3685749912110598
+        joint_name: wrist_roll_joint
+planner_id: BKPIECEGood
+group_name: arm_with_torso
+num_planning_attempts: 2
+max_acceleration_scaling_factor: 0
+start_state:
+  joint_state:
+    position: [0, 0, 0.2032606975089758, 0.05, 0, 0, -0.5757277760153563, 0.5904026144834083, -2.147113688676364, 1.1280261199031, 0.4853931489557094, -0.5069478433810457, 1.908716155670906, 0.05, 0.05]
+    header:
+      frame_id: base_link
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+  attached_collision_objects:
+    - touch_links:
+        - gripper_link
+        - l_gripper_finger_link
+        - r_gripper_finger_link
+      weight: 0
+      object:
+        id: Can4
+        primitive_poses:
+          - position: [-0.002260036064767545, -0.003202441368257297, -0.05044795656543766]
+            orientation: [0.003230996344182274, 0.003784284507726657, -0.001776613199165041, 0.9999860416520467]
+        primitives:
+          - type: cylinder
+            dimensions: [0.14, 0.03]
+        header:
+          frame_id: gripper_link
+      link_name: gripper_link
