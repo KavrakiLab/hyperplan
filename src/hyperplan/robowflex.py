@@ -49,16 +49,16 @@ from .base_worker import BaseWorker
 
 
 class RobowflexBaseWorker(BaseWorker):
-    def initialize_problems(self, configs):
-        if configs:
-            config_dir = Path(configs[0])
-            self.config_template = open(config_dir / "ompl_planning.yaml", "r").read()
+    def initialize_problems(self, config):
+        if config:
+            self.config_template = open(config["ompl_config_template"]).read()
             self.problems = list(
                 zip(
-                    sorted(config_dir.glob("*scene*.yaml")),
-                    sorted(config_dir.glob("*request*.yaml")),
+                    sorted(Path(config["input_dir"]).glob(config["input_scenes"])),
+                    sorted(Path(config["input_dir"]).glob(config["input_requests"])),
                 )
             )
+            print("problems: ", self.problems)
 
     def compute(self, config_id, config, budget, working_directory):
         duration, num_runs = self.duration_runs(budget)
@@ -120,9 +120,9 @@ class RobowflexBaseWorker(BaseWorker):
 
 
 class SpeedWorker(RobowflexBaseWorker):
-    def __init__(self, config_files, *args, **kwargs):
+    def __init__(self, config, *args, **kwargs):
         super().__init__(
-            config_files,
+            config,
             {
                 "time": "time REAL",
                 "path_length": "length REAL",
@@ -239,9 +239,9 @@ class SpeedWorker(RobowflexBaseWorker):
 
 
 class SpeedKinodynamicWorker(RobowflexBaseWorker):
-    def __init__(self, config_files, *args, **kwargs):
+    def __init__(self, config, *args, **kwargs):
         super().__init__(
-            config_files,
+            config,
             {
                 "time": "time REAL",
                 "path_length": "length REAL",
@@ -333,9 +333,9 @@ class SpeedKinodynamicWorker(RobowflexBaseWorker):
 
 
 class OptWorker(RobowflexBaseWorker):
-    def __init__(self, config_files, *args, **kwargs):
+    def __init__(self, config, *args, **kwargs):
         super().__init__(
-            config_files,
+            config,
             {
                 "path_length": "length REAL",
                 "goal_distance": "goal_distance REAL",

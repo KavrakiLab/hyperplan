@@ -35,6 +35,7 @@
 # Author: Mark Moll
 
 import numpy as np
+from pathlib import Path
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from .util import quantile_with_fallback, nanquantile_with_fallback
@@ -42,15 +43,18 @@ from .base_worker import BaseWorker
 
 
 class OmplappBaseWorker(BaseWorker):
-    def initialize_problems(self, configs):
-        if configs:
-            self.problems = [open(config, "r").read() for config in configs]
+    def initialize_problems(self, config):
+        if config:
+            self.problems = [
+                open(problem, "r").read()
+                for problem in Path(config["input_dir"]).glob(config["input_scenes"])
+            ]
 
 
 class SpeedWorker(OmplappBaseWorker):
-    def __init__(self, config_files, *args, **kwargs):
+    def __init__(self, config, *args, **kwargs):
         super().__init__(
-            config_files,
+            config,
             {
                 "time": "time REAL",
                 "path_length": "solution length REAL",
@@ -144,9 +148,9 @@ class SpeedWorker(OmplappBaseWorker):
 
 
 class SpeedKinodynamicWorker(OmplappBaseWorker):
-    def __init__(self, config_files, *args, **kwargs):
+    def __init__(self, config, *args, **kwargs):
         super().__init__(
-            config_files,
+            config,
             {
                 "time": "time REAL",
                 "path_length": "solution length REAL",
@@ -239,9 +243,9 @@ class SpeedKinodynamicWorker(OmplappBaseWorker):
 
 
 class OptWorker(OmplappBaseWorker):
-    def __init__(self, config_files, *args, **kwargs):
+    def __init__(self, config, *args, **kwargs):
         super().__init__(
-            config_files,
+            config,
             {
                 "path_length": "solution length REAL",
                 "goal_distance": "solution difference REAL",
@@ -378,7 +382,7 @@ class OptWorker(OmplappBaseWorker):
                 CS.OrConjunction(
                     CS.EqualsCondition(use_k_nearest, planner, "AITstar"),
                     CS.EqualsCondition(use_k_nearest, planner, "BITstar"),
-                    #CS.EqualsCondition(use_k_nearest, planner, "FMT"),
+                    # CS.EqualsCondition(use_k_nearest, planner, "FMT"),
                     CS.EqualsCondition(use_k_nearest, planner, "RRTstar"),
                     CS.EqualsCondition(use_k_nearest, planner, "RRTXstatic"),
                 ),
@@ -509,11 +513,11 @@ class OptWorker(OmplappBaseWorker):
         cs.add_condition(CS.EqualsCondition(num_threads, planner, "CForest"))
 
         # FMT
-        #num_samples = CSH.UniformIntegerHyperparameter(
+        # num_samples = CSH.UniformIntegerHyperparameter(
         #    "num_samples", lower=1000, upper=50000, default_value=1000, log=True
-        #)
-        #cs.add_hyperparameter(num_samples)
-        #cs.add_condition(CS.EqualsCondition(num_samples, planner, "FMT"))
+        # )
+        # cs.add_hyperparameter(num_samples)
+        # cs.add_condition(CS.EqualsCondition(num_samples, planner, "FMT"))
 
         # RRT*
         delay_collision_checking = CSH.UniformIntegerHyperparameter(

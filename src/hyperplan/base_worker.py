@@ -57,14 +57,14 @@ class BaseWorker(Worker, ABC):
 
     def __init__(
         self,
-        configs,
+        config,
         selected_properties,
         *args,
         selected_progress_properties={},
         **kwargs,
     ):
         Worker.__init__(self, *args, **kwargs)
-        self.initialize_problems(configs)
+        self.initialize_problems(config)
         self.keep_log_files = True
         self.selected_properties = selected_properties
         self.selected_progress_properties = selected_progress_properties
