@@ -44,6 +44,7 @@
 #include <robowflex_library/scene.h>
 #include <robowflex_library/util.h>
 #include <robowflex_ompl/ompl_interface.h>
+#include <ompl/base/goals/GoalRegion.h>
 
 using namespace robowflex;
 
@@ -58,7 +59,17 @@ struct GoalDistanceFunctor
         auto planner = std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(std::get<1>(request));
         if (planner == nullptr)
             ROS_FATAL("Unexpected planner!");
-        metrics.metrics["goal_distance"] = std::max(0., planner->getLastSimpleSetup()->getProblemDefinition()->getSolutionDifference());
+	auto pdef = planner->getLastSimpleSetup()->getProblemDefinition();
+	double distance = pdef->getSolutionDifference();
+	if (distance == -1)
+	{
+	    auto start = pdef->getStartState(0);
+	    auto goal = std::dynamic_pointer_cast<ompl::base::GoalRegion>(pdef->getGoal());
+	    if (goal == nullptr)
+	        ROS_FATAL("Unexpected goal type!");
+	    distance = goal->distanceGoal(start);
+	}
+        metrics.metrics["goal_distance"] = distance;
     }
 };
 
