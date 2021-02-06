@@ -4,7 +4,7 @@ random_fraction: 0.33333333
 loss_function: opt
 backend: robowflex
 
-input_dir: /home/mmoll/ws_hyperplan/src/examples/fetch/box_pick
+input_dir: /home/mmoll/ws_hyperplan/src/hyperplan/examples/fetch/box_pick
 input_scenes: scene000[123].yaml
 input_requests: request000[123].yaml
 output_dir: /home/mmoll/Bubox/archive/mark_moll/hyperplan
