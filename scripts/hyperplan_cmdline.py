@@ -62,6 +62,9 @@ if __name__ == "__main__":
         "--worker", action="store_true", help="Flag to turn this into a worker process"
     )
     parser.add_argument(
+        "--run_id", type=int, default=-1, help="Run id. Use -1 to auto select next run id."
+    )
+    parser.add_argument(
         "--nic_name",
         type=str,
         default=default_network_interface(),
@@ -81,8 +84,10 @@ if __name__ == "__main__":
         / config["loss_function"]
     )
 
-    runs = sorted(working_dir.glob("*"))
-    run_id = 0 if not runs else (int(runs[-1].name) + 1)
+    run_id = args.run_id
+    if run_id == -1:
+        runs = sorted(working_dir.glob("*"))
+        run_id = 0 if not runs else (int(runs[-1].name) + 1)
     working_dir = working_dir / str(run_id)
 
     # Every process has to lookup the hostname

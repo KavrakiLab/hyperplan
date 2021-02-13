@@ -52,13 +52,29 @@ class RobowflexBaseWorker(BaseWorker):
     def initialize_problems(self, config):
         if config:
             self.config_template = open(config["ompl_config_template"]).read()
-            self.problems = list(
-                zip(
-                    sorted(Path(config["input_dir"]).glob(config["input_scenes"])),
-                    sorted(Path(config["input_dir"]).glob(config["input_requests"])),
-                )
-            )
-            print("problems: ", self.problems)
+            self.scenes = sorted([p.resolve() for p in Path(config["input_dir"]).glob(config["input_scenes"])])
+            self.requests = sorted([p.resolve() for p in Path(config["input_dir"]).glob(config["input_requests"])])
+
+    def batch_test(self, opt_config, test_config):
+        # save original template and problems
+        config_template = self.config_template
+        scenes = self.scenes
+        requests = self.requests
+        result = {}
+        for testname, test in test_config['tests'].items():
+            self.config_template = open(test['ompl_config_template']).read() if 'ompl_config_template' in test else config_template
+            self.scenes = sorted(set([p.resolve() for p in Path(test_config["input_dir"]).glob(test["input_scenes"])]).difference(scenes))
+            if not self.scenes:
+                self.scenes = scenes
+            self.requests = sorted(set([p.resolve() for p in Path(test_config["input_dir"]).glob(test["input_requests"])]).difference(requests))
+            if not self.requests:
+                self.requests = requests
+            result[testname] = self.compute(None, opt_config, test_config['test_budget'], None)
+        # restore original template and problems
+        self.config_template = config_template
+        self.scenes = scenes
+        self.requests = requests
+        return result
 
     def compute(self, config_id, config, budget, working_directory):
         duration, num_runs = self.duration_runs(budget)
@@ -83,7 +99,7 @@ class RobowflexBaseWorker(BaseWorker):
         os.write(cfg_file_handle, cfg.encode())
         os.close(cfg_file_handle)
 
-        for scene, request in self.problems:
+        for scene, request in zip(self.scenes, self.requests):
             try:
                 log_dir = abs_path + "_logs/"
                 cmdline = [

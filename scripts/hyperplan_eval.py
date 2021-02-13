@@ -36,8 +36,11 @@
 
 # Author: Mark Moll
 
+from pathlib import Path
 import argparse
+import pickle
 import logging
+import yaml
 import hpbandster.core.nameserver as hpns
 import hpbandster.core.result as hpres
 from hyperplan import default_network_interface, worker_types
@@ -50,75 +53,62 @@ if __name__ == "__main__":
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
-        "--budget", type=float, default=6, help="Budget used for optimization."
-    )
-    parser.add_argument(
         "--nic_name",
         type=str,
         default=default_network_interface(),
         help="Which network interface to use for communication.",
     )
     parser.add_argument(
-        "--opt",
-        type=str,
-        choices={key[1] for key in worker_types.keys()},
-        default="speed",
-        help="Type of hyperparameter optimization to perform",
-    )
-    parser.add_argument(
-        "--backend",
-        type=str,
-        choices={key[0] for key in worker_types.keys()},
-        default="omplapp",
-        help="Backend used for evaluating planner configurations",
-    )
-    parser.add_argument(
-        "--param_id",
-        type=str,
-        default=None,
-        help="Id of the form 1,2,3, corresponding to the hyperparameter config id in the results.pkl file in the working directory",
-    )
-    parser.add_argument(
-        "--working_dir",
-        type=str,
-        required=True,
-        help="A directory that is accessible for all processes, e.g. a NFS share.",
+        "--run_id", type=int, default=-1, help="Run id. Use -1 to auto select last run id."
     )
     parser.add_argument(
         "config",
-        nargs="+",
-        type=str,
-        help="configuration file/directory specifying a benchmark problem",
+        type=argparse.FileType("r"),
+        help="YAML configuration file specifying a hyperparameter optimization problem",
     )
 
     args = parser.parse_args()
-    logged_results = hpres.logged_results_to_HBS_result(args.working_dir)
-    id2conf = logged_results.get_id2config_mapping()
-    selected_id = (
-        logged_results.get_incumbent_id()
-        if args.param_id == None
-        else tuple([int(s) for s in args.param_id.split(",")])
+    config = yaml.load(args.config, Loader=yaml.FullLoader)
+    working_dir = (
+        Path(config["output_dir"]).resolve()
+        / Path(config["input_dir"]).name
+        / config["loss_function"]
     )
-    config = id2conf[selected_id]["config"]
+
+    run_id = args.run_id
+    if run_id == -1:
+        runs = sorted(working_dir.glob("*"))
+        run_id = 0 if not runs else int(runs[-1].name)
+    working_dir = working_dir / str(run_id)
+
+    logged_results = hpres.logged_results_to_HBS_result(working_dir)
+    id2conf = logged_results.get_id2config_mapping()
+    selected_id = logged_results.get_incumbent_id()
+    best_config = id2conf[selected_id]["config"]
 
     host = hpns.nic_name_to_host(args.nic_name)
-    WorkerType = worker_types[(args.backend, args.opt)]
+    WorkerType = worker_types[(config["backend"], config["loss_function"])]
     NS = hpns.NameServer(
-        run_id=0, host=host, port=0, working_directory=args.working_dir
+        run_id=0, host=host, port=0, working_directory=working_dir
     )
     ns_host, ns_port = NS.start()
     w = WorkerType(
-        config_files=args.config,
+        config=config,
         run_id=0,
         host=host,
         nameserver=ns_host,
         nameserver_port=ns_port,
     )
-    results = w.compute(
-        config_id=None,
-        config=config,
-        budget=args.budget,
-        working_directory=args.working_dir,
+    result = w.batch_test(
+        opt_config=best_config,
+        test_config=config
     )
-    print(f"id={selected_id}, config={config}, input={args.config}")
-    print(results)
+    result["optimized_config"] = logged_results.get_runs_by_id(selected_id)[-1]
+    with open(Path(working_dir) / "test_results.pkl", "wb") as fh:
+        pickle.dump(result, fh)
+    with open(Path(working_dir) / "test_results.csv", "w") as fh:
+        for test, res in result.items():
+            print(f'{test},{res["loss"]}', file=fh)
+
+    NS.shutdown()
+    exit(0)
