@@ -131,11 +131,9 @@ int main(int argc, char **argv)
         while (true)
         {
             planning_interface::MotionPlanResponse res = planner->plan(scene, request->getRequest());
-            if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
-                return 1;
-
-            // Publish the trajectory to a topic to display in RViz
-            rviz.updateTrajectory(res);
+            if (res.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+                // Publish the trajectory to a topic to display in RViz
+                rviz.updateTrajectory(res);
 
             ROS_INFO("Press enter to remove the scene.");
             std::cin.get();
