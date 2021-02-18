@@ -5,7 +5,8 @@ cd ${HOME}/ws_hyperplan/src/hyperplan
 
 problem=${1:-box_pick}
 opt=${2:-speed}
-worker=${3:-}
+runid=${3:-1}
+worker=${4:-}
 
-(nohup ./scripts/hyperplan_cmdline.py \
+(nohup ./scripts/hyperplan_cmdline.py --run_id=${runid} \
 ${worker} examples/fetch/${problem}-${opt}.yaml >> /tmp/hyperplan-${problem}-${opt}.log) &

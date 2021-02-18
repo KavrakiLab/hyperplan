@@ -26,3 +26,6 @@ tests:
   octomap_representation:
     input_scenes: "[bst][oma][xab]*_pick/scene_sensed0001.yaml"
     input_requests: "[bst][oma][xab]*_pick/request0001.yaml"
+  within_group:
+    input_scenes: "[bst][oma][xab]*_pick/scene00??.yaml"
+    input_requests: "[bst][oma][xab]*_pick/request00??.yaml"

@@ -1,6 +1,6 @@
-num_iterations: 7
-max_budget: 729
-test_budget: 60
+num_iterations: 6
+max_budget: 4374
+test_budget: 120
 random_fraction: 0.33333333
 loss_function: opt
 backend: robowflex

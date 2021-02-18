@@ -274,9 +274,9 @@ class SpeedKinodynamicWorker(RobowflexBaseWorker):
         return [
             quantile_with_fallback(
                 np.array(t[:-1]) + np.array(pl[:-1]) / self.speed,
-                budget + d[-1] * d[-1] / (self.speed * self.speed)
+                self.MAX_COST + d[-1] * d[-1] / (self.speed * self.speed)
                 if np.isfinite(d[-1])
-                else budget * 2,
+                else 2 * self.MAX_COST,
             )
             for t, pl, d in zip(
                 results["time"], results["path_length"], results["goal_distance"]
@@ -404,7 +404,7 @@ class OptWorker(RobowflexBaseWorker):
         ]
 
     def duration_runs(self, budget):
-        return budget / 10.0, 10
+        return budget / 5.0, 5
 
     @staticmethod
     def get_configspace():
