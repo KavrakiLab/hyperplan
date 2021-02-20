@@ -389,6 +389,7 @@ class OptWorker(RobowflexBaseWorker):
         if not time:
             return np.nan
         ind = np.isfinite(cost)
+        print('area_under_curve', ind, time, cost)
         cost = np.array(cost)[ind]
         time = np.array(time)[ind]
         if time.size == 0:
@@ -404,7 +405,7 @@ class OptWorker(RobowflexBaseWorker):
         ]
 
     def duration_runs(self, budget):
-        return budget / 5.0, 5
+        return budget / 10.0, 10
 
     @staticmethod
     def get_configspace():
@@ -413,9 +414,9 @@ class OptWorker(RobowflexBaseWorker):
             name="planner",
             choices=[
                 "AITstar",
-                "AnytimePathShortening",
+                #"AnytimePathShortening",
                 "BITstar",
-                "CForest",
+                #"CForest",
                 # "FMT",
                 # 'LazyLBTRRT',
                 # 'LazyPRMstar',
@@ -456,15 +457,15 @@ class OptWorker(RobowflexBaseWorker):
         #     'dense_delta_fraction', lower=0., upper=.1, default_value=.001)
         # max_failures = CSH.UniformIntegerHyperparameter(
         #     'max_failures', lower=100, upper=3000, default_value=1000, log=True)
-        focus_search = CSH.UniformIntegerHyperparameter(
-            "focus_search", lower=0, upper=1, default_value=1
-        )
+        #focus_search = CSH.UniformIntegerHyperparameter(
+        #    "focus_search", lower=0, upper=1, default_value=1
+        #)
         samples_per_batch = CSH.UniformIntegerHyperparameter(
             "samples_per_batch", lower=1, upper=10000, default_value=100, log=True
         )
 
         cs.add_hyperparameters(
-            [rnge, goal_bias, use_k_nearest, focus_search, samples_per_batch]
+            [rnge, goal_bias, use_k_nearest, samples_per_batch]
         )
         # rnge, goal_bias, use_k_nearest, epsilon, rewire_factor, informed_sampling,
         # sample_rejection, number_sampling_attempts, stretch_factor, sparse_delta_fraction,
@@ -532,10 +533,10 @@ class OptWorker(RobowflexBaseWorker):
                 #     CS.EqualsCondition(max_failures, planner, 'SPARS'),
                 #     CS.EqualsCondition(max_failures, planner, 'SPARS2')
                 # ),
-                CS.OrConjunction(
-                    CS.EqualsCondition(focus_search, planner, "RRTstar"),
-                    CS.EqualsCondition(focus_search, planner, "CForest"),
-                ),
+                #CS.OrConjunction(
+                #    CS.EqualsCondition(focus_search, planner, "RRTstar"),
+                #    CS.EqualsCondition(focus_search, planner, "CForest"),
+                #),
                 CS.OrConjunction(
                     CS.EqualsCondition(samples_per_batch, planner, "AITstar"),
                     CS.EqualsCondition(samples_per_batch, planner, "BITstar"),
@@ -550,31 +551,31 @@ class OptWorker(RobowflexBaseWorker):
         # )
 
         # AnytimePathShortening
-        max_hybrid_paths = CSH.UniformIntegerHyperparameter(
-            "max_hybrid_paths", lower=2, upper=128, default_value=24, log=True
-        )
-        num_planners = CSH.UniformIntegerHyperparameter(
-            "num_planners", lower=2, upper=8, default_value=4
-        )
+        #max_hybrid_paths = CSH.UniformIntegerHyperparameter(
+        #    "max_hybrid_paths", lower=2, upper=128, default_value=24, log=True
+        #)
+        #num_planners = CSH.UniformIntegerHyperparameter(
+        #    "num_planners", lower=2, upper=8, default_value=4
+        #)
         # shortcut = CSH.UniformIntegerHyperparameter(
         #     'shortcut', lower=0, upper=1, default_value=1)
         # hybridize = CSH.UniformIntegerHyperparameter(
         #     'hybridize', lower=0, upper=1, default_value=1)
-        cs.add_hyperparameters(
-            [
-                # max_hybrid_paths, num_planners, shortcut, hybridize])
-                max_hybrid_paths,
-                num_planners,
-            ]
-        )
-        cs.add_conditions(
-            [
-                CS.EqualsCondition(max_hybrid_paths, planner, "AnytimePathShortening"),
-                CS.EqualsCondition(num_planners, planner, "AnytimePathShortening")  # ,
-                # CS.EqualsCondition(shortcut, planner, 'AnytimePathShortening'),
-                # CS.EqualsCondition(hybridize, planner, 'AnytimePathShortening')
-            ]
-        )
+        #cs.add_hyperparameters(
+        #    [
+        #        # max_hybrid_paths, num_planners, shortcut, hybridize])
+        #        max_hybrid_paths,
+        #        num_planners,
+        #    ]
+        #)
+        #cs.add_conditions(
+        #    [
+        #        CS.EqualsCondition(max_hybrid_paths, planner, "AnytimePathShortening"),
+        #        CS.EqualsCondition(num_planners, planner, "AnytimePathShortening")  # ,
+        #        # CS.EqualsCondition(shortcut, planner, 'AnytimePathShortening'),
+        #        # CS.EqualsCondition(hybridize, planner, 'AnytimePathShortening')
+        #    ]
+        #)
 
         # BIT*
         # use_graphPtr_pruning = CSH.UniformIntegerHyperparameter(
@@ -612,11 +613,11 @@ class OptWorker(RobowflexBaseWorker):
         # ])
 
         # CForest
-        num_threads = CSH.UniformIntegerHyperparameter(
-            "num_threads", lower=2, upper=8, default_value=4
-        )
-        cs.add_hyperparameter(num_threads)
-        cs.add_condition(CS.EqualsCondition(num_threads, planner, "CForest"))
+        #num_threads = CSH.UniformIntegerHyperparameter(
+        #    "num_threads", lower=2, upper=8, default_value=4
+        #)
+        #cs.add_hyperparameter(num_threads)
+        #cs.add_condition(CS.EqualsCondition(num_threads, planner, "CForest"))
 
         # FMT
         # num_samples = CSH.UniformIntegerHyperparameter(
@@ -695,10 +696,10 @@ class OptWorker(RobowflexBaseWorker):
 
         # SST
         selection_radius = CSH.UniformFloatHyperparameter(
-            "selection_radius", lower=10, upper=500.0, default_value=50.0, log=True
+            "selection_radius", lower=.01, upper=5.0, default_value=2.0
         )
         pruning_radius = CSH.UniformFloatHyperparameter(
-            "pruning_radius", lower=10, upper=500.0, default_value=10.0, log=True
+            "pruning_radius", lower=.01, upper=5.0, default_value=0.2
         )
         cs.add_hyperparameters([selection_radius, pruning_radius])
         cs.add_conditions(
