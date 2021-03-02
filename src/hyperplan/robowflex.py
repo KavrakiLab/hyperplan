@@ -389,7 +389,6 @@ class OptWorker(RobowflexBaseWorker):
         if not time:
             return np.nan
         ind = np.isfinite(cost)
-        print('area_under_curve', ind, time, cost)
         cost = np.array(cost)[ind]
         time = np.array(time)[ind]
         if time.size == 0:
