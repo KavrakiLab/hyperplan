@@ -49,7 +49,7 @@ read_run <- function(dir) {
 generate_plots <- function(dirs) {
     dfs <- lapply(dirs, read_run)
     df <- bind_rows(dfs)
-    df$budget <- factor(signif(df$budget, 2))
+    df$budget <- factor(signif(df$budget, 3))
     df$model_based <- factor(df$model_based, labels = c("random", "model-based"))
     df <- df %>%
         add_count(planner) %>%
@@ -62,8 +62,10 @@ generate_plots <- function(dirs) {
         ) +
         xlab("budget (seconds)") +
         theme_tufte() +
-        scale_color_manual(values = cols) +
-        facet_grid(rows = vars(run.id))
+        scale_color_manual(values = cols)
+    if (length(dirs) > 1) {
+        loss <- loss + facet_grid(rows = vars(run.id))
+    }
     ggsave("loss.pdf", width = 6.5, height = 3, units = "in", scale = 1.3)
     #    planners <- ggplot(df, aes(budget)) +
     #        geom_bar(aes(fill=planner), position="fill") +

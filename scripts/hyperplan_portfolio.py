@@ -49,7 +49,7 @@ if __name__ == "__main__":
     NS = hpns.NameServer(run_id=0, host=host)
     ns_host, ns_port = NS.start()
     worker = WorkerType(
-        config_files=None,
+        config=None,
         run_id=0,
         host=host,
         nameserver=ns_host,
