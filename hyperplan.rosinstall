@@ -1,12 +1,20 @@
+#- git:
+#    uri: https://github.com/KavrakiLab/hyperplan.git
+#    local-name: hyperplan
+#    version: main
 - git:
-    uri: git@github.com:KavrakiLab/hyperplan.git
-    local-name: hyperplan
-    version: master
-- git:
-    uri: git@github.com:KavrakiLab/robowflex.git
+    uri: https://github.com/KavrakiLab/robowflex.git
     local-name: robowflex
     version: master
 - git:
-    uri: git@github.com:KavrakiLab/fetch_ros.git
+    uri: https://github.com/KavrakiLab/fetch_ros.git
     local-name: fetch_ros
     version: melodic-devel
+- git:
+    uri: https://github.com/mamoll/moveit.git
+    local-name: moveit
+    version: melodic-devel-more-ompl-planners
+- git:
+    uri: https://github.com/mamoll/ompl.git
+    local-name: ompl
+    version: tmp-opt-progress-fix
