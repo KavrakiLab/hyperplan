@@ -12,4 +12,4 @@ docker run \
    --name ${name}${suffix} \
    --mount type=bind,source=${HOME}/Bubox/archive/mark_moll,target=/ws_hyperplan/data \
    hyperplan ${testing} \
-   /ws_hyperplan/data/hyperplan-${robot}/${problem}-${opt}.yaml >> /tmp/hyperplan-${problem}-${opt}.log
+   /ws_hyperplan/data/hyperplan-${robot}/${problem}-${opt}.yaml >> /tmp/hyperplan-${robot}-${problem}-${opt}${suffix}.log
