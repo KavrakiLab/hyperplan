@@ -48,8 +48,6 @@
 
 using namespace robowflex;
 
-static const std::string GROUP = "arm_with_torso";
-
 struct GoalDistanceFunctor
 {
     const Benchmarker::BenchmarkRequest &request;
@@ -82,18 +80,28 @@ callbackFnAllocator(const Benchmarker::BenchmarkRequest &request)
 int main(int argc, char **argv)
 {
     ROS ros(argc, argv);
-    if (argc < 5)
+    if (argc < 6)
     {
         ROS_FATAL_STREAM("Command line syntax:\n\t" << argv[0]
-                                                    << " scene.yaml request.yaml ompl_planning.yaml time "
+                                                    << " robot scene.yaml request.yaml ompl_planning.yaml time "
                                                        "num_runs log_dir [simplify]");
         exit(-1);
     }
-    std::string scene_file_name(argv[1]), request_file_name(argv[2]), planner_config_file_name(argv[3]);
-    double planning_time = std::atof(argv[4]);
-    bool rviz_only = argc < 7;
-    auto robot = std::make_shared<FetchRobot>();
-    robot->initialize();
+    std::string robot_name(argv[1]), scene_file_name(argv[2]), request_file_name(argv[3]), planner_config_file_name(argv[4]);
+    double planning_time = std::atof(argv[5]);
+    bool rviz_only = argc < 8;
+    auto robot = std::make_shared<Robot>(robot_name);
+    if (robot_name == "baxter")
+    {
+        robot->initializeFromYAML("package://robowflex_resources/baxter.yml");
+        robot->loadKinematics("left_arm");
+        robot->loadKinematics("right_arm");
+    }
+    else
+    {
+	robot->initializeFromYAML("package://robowflex_resources/fetch.yml");
+	robot->loadKinematics("arm_with_torso");
+    }
 
     auto scene = std::make_shared<Scene>(robot);
     if (!scene->fromYAMLFile(scene_file_name))
@@ -103,17 +111,23 @@ int main(int argc, char **argv)
     }
     auto planner = std::make_shared<OMPL::OMPLInterfacePlanner>(robot, "default");
     OMPL::Settings settings;
-    settings.simplify_solutions = rviz_only || (argc > 7);
+    settings.simplify_solutions = rviz_only || (argc > 8);
     planner->initialize(planner_config_file_name, settings);
-    auto request = std::make_shared<MotionRequestBuilder>(planner, GROUP);
+    auto request = std::make_shared<MotionRequestBuilder>(robot);
     if (!request->fromYAMLFile(request_file_name))
     {
         ROS_FATAL_STREAM("Failed to read file " << request_file_name << " for request");
         exit(-1);
     }
+    request->setPlanner(planner);
     request->getRequest().planner_id = "planner";
     request->setAllowedPlanningTime(planning_time);
     request->setNumPlanningAttempts(1);
+
+    if (settings.simplify_solutions)
+        ROS_INFO("Path simplification is enabled");
+    else
+        ROS_INFO("Path simplification is disabled");
 
     if (rviz_only)
     {
@@ -142,8 +156,8 @@ int main(int argc, char **argv)
     }
     else
     {
-        unsigned int num_runs = std::atoi(argv[5]);
-        std::string log_dir(argv[6]);
+        unsigned int num_runs = std::atoi(argv[6]);
+        std::string log_dir(argv[7]);
         Benchmarker benchmark;
         benchmark.setMetricCallbackFnAllocator(callbackFnAllocator);
         benchmark.addBenchmarkingRequest(scene_file_name, scene, planner, request);
