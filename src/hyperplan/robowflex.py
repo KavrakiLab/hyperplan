@@ -59,7 +59,7 @@ class RobowflexBaseWorker(BaseWorker):
     def batch_test(self, opt_config, test_config):
         # save original template and problems
         config_template = self.config_template
-        default_template = test_config.ompl_config_template
+        default_template = test_config['ompl_config_template']
         scenes = self.scenes
         requests = self.requests
         result = {}
