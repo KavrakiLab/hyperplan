@@ -13,6 +13,7 @@ if [ "$testing" == "--test" ]; then
 fi
 
 docker run \
+   --rm \
    --name ${name}${suffix} \
    --mount type=bind,source=${HOME}/Bubox/archive/mark_moll,target=/ws_hyperplan/data \
    hyperplan ${testing} $@ \

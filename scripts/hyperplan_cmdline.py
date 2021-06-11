@@ -90,7 +90,9 @@ if __name__ == "__main__":
     run_id = args.run_id
     if run_id == -1:
         runs = sorted(working_dir.glob("*"))
-        run_id = 0 if not runs else (int(runs[-1].name) + 1)
+        run_id = 0 if not runs else int(runs[-1].name)
+        if not args.test:
+            run_id += 1
     working_dir = working_dir / str(run_id)
 
     # Every process has to lookup the hostname
@@ -133,7 +135,7 @@ if __name__ == "__main__":
             pickle.dump(result, fh)
         with open(Path(working_dir) / "test_results.csv", "w") as fh:
             for test, res in result.items():
-                    print(f'{test},{res["loss"]}', file=fh)
+                print(f'{test},{res["loss"]}', file=fh)
 
         NS.shutdown()
         exit(0)
