@@ -46,14 +46,15 @@ import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from .util import quantile_with_fallback
 from .base_worker import BaseWorker
+import re
 
 
 class RobowflexBaseWorker(BaseWorker):
     def initialize_problems(self, config):
         if config:
             self.config_template = open(config["ompl_config_template"]).read()
-            self.scenes = sorted([p.resolve() for p in Path(config["input_dir"]).glob(config["input_scenes"])])
-            self.requests = sorted([p.resolve() for p in Path(config["input_dir"]).glob(config["input_requests"])])
+            self.scenes = sorted([Path.joinpath(Path(config["input_dir"]), f) for f in os.listdir(Path(config["input_dir"])) if re.search(config["input_scenes"], f)])
+            self.requests = sorted([Path.joinpath(Path(config["input_dir"]), f) for f in os.listdir(Path(config["input_dir"])) if re.search(config["input_requests"], f)])
             self.robot = config['robot']
 
     def batch_test(self, opt_config, test_config):
