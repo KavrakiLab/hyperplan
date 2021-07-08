@@ -54,15 +54,18 @@ class RobowflexBaseWorker(BaseWorker):
             self.config_template = open(config["ompl_config_template"]).read()
             self.scenes = sorted([p.resolve() for p in Path(config["input_dir"]).glob(config["input_scenes"])])
             self.requests = sorted([p.resolve() for p in Path(config["input_dir"]).glob(config["input_requests"])])
+            self.robot = config['robot']
 
     def batch_test(self, opt_config, test_config):
         # save original template and problems
         config_template = self.config_template
+        default_template = open(test_config['ompl_config_template']).read()
         scenes = self.scenes
         requests = self.requests
         result = {}
+        self.robot = test_config['robot']
         for testname, test in test_config['tests'].items():
-            self.config_template = open(test['ompl_config_template']).read() if 'ompl_config_template' in test else config_template
+            self.config_template = open(test['ompl_config_template']).read() if 'ompl_config_template' in test else default_template
             self.scenes = sorted(set([p.resolve() for p in Path(test_config["input_dir"]).glob(test["input_scenes"])]).difference(scenes))
             if not self.scenes:
                 self.scenes = scenes
@@ -106,6 +109,7 @@ class RobowflexBaseWorker(BaseWorker):
                     "rosrun",
                     "hyperplan",
                     "robowflex_helper",
+                    self.robot,
                     str(scene),
                     str(request),
                     abs_path,

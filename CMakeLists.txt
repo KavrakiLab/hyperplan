@@ -20,5 +20,6 @@ install(PROGRAMS bin/${PROJECT_NAME}_cmdline.py
 find_program(DOCKER docker NO_CMAKE_SYSTEM_PATH)
 if(DOCKER)
     add_custom_target(docker-hyperplan
-        COMMAND ${DOCKER} build -t "${PROJECT_NAME}" -f Dockerfile "${CMAKE_SOURCE_DIR}")
+        COMMAND ${DOCKER} build -t "${PROJECT_NAME}" -f Dockerfile .
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 endif()

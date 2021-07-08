@@ -7,13 +7,17 @@ COPY . hyperplan
 # See https://github.com/settings/tokens for details
 RUN apt-get update && \
     apt-get -y upgrade && \
-    apt-get -y install python-catkin-tools && \
-    git config --global url."https://{token}:@github.com/".insteadOf "https://github.com/" && \
+    apt-get -y install python-catkin-tools python3.8-dev python3.8-venv && \
     wstool init . && \
-    wstool merge $CATKIN_WS/src/hyperplan/hyperplan.rosinstall && \
+    wstool merge hyperplan/hyperplan.rosinstall && \
     wstool update && \
     cd ${CATKIN_WS} && \
     catkin config --extend /opt/ros/$ROS_DISTRO \
            --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && \
     rosdep install -y -r --from-paths src --ignore-src --rosdistro $ROS_DISTRO && \
-    catkin build
+    catkin build && \
+    python3.8 -m venv venv && \
+    . ./venv/bin/activate && \
+    pip install --isolated wheel && \
+    pip install --isolated -r src/hyperplan/requirements.txt
+ENTRYPOINT ["./hyperplan/scripts/hyperplan_docker_entrypoint.sh"]

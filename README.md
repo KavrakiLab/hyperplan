@@ -11,8 +11,8 @@ optimization package.
 
 Run the following commands:
 
-    sudo apt-get install python3.7-dev python3.7-venv
-    python3.7 -m venv venv
+    sudo apt-get install python3.8-dev python3.8-venv
+    python3.8 -m venv venv
     source venv/bin/activate
     pip install --isolated -r requirements.txt
 

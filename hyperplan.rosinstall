@@ -7,9 +7,9 @@
     local-name: robowflex
     version: master
 - git:
-    uri: https://github.com/KavrakiLab/fetch_ros.git
-    local-name: fetch_ros
-    version: melodic-devel
+    uri: https://github.com/KavrakiLab/robowflex_resources.git
+    local-name: robowflex_resources
+    version: master
 - git:
     uri: https://github.com/mamoll/moveit.git
     local-name: moveit
