@@ -5,7 +5,7 @@
 - git:
     uri: https://github.com/KavrakiLab/robowflex.git
     local-name: robowflex
-    version: master
+    version: b6334e517894799ba79e8ef79cd78218e0d81676
 - git:
     uri: https://github.com/KavrakiLab/robowflex_resources.git
     local-name: robowflex_resources

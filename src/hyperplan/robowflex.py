@@ -41,6 +41,7 @@ import logging
 from tempfile import mkstemp
 from collections import defaultdict
 from pathlib import Path
+import yaml
 import numpy as np
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
@@ -49,6 +50,25 @@ from .base_worker import BaseWorker
 
 
 class RobowflexBaseWorker(BaseWorker):
+    PROJECTIONS = {
+        "fetch": {
+            "arm_with_torso": {
+                "shoulder": "joints(torso_lift_joint,shoulder_pan_joint)",
+                "wrist": "link(wrist_roll_link)"
+            }
+        },
+        "baxter": {
+            "left_arm": {
+                "shoulder": "joints(left_s0,left_s1)",
+                "wrist": "link(left_hand)"
+            },
+            "right_arm": {
+                "shoulder": "joints(right_s0,right_s1)",
+                "wrist": "link(right_hand)"
+            }
+        }
+    }
+
     def initialize_problems(self, config):
         if config:
             self.config_template = open(config["ompl_config_template"]).read()
@@ -91,18 +111,19 @@ class RobowflexBaseWorker(BaseWorker):
                 if not key in excluded_params
             ]
         )
-        if "projection" in config:
-            projection = "projection_evaluator: " + config["projection"]
-        else:
-            projection = "# no projection"
-        cfg = self.config_template.format(
-            **{"planner": planner, "params": params, "projection": projection}
-        )
-        cfg_file_handle, abs_path = mkstemp(suffix=".yaml", text=True)
-        os.write(cfg_file_handle, cfg.encode())
-        os.close(cfg_file_handle)
 
         for scene, request in zip(self.scenes, self.requests):
+            if "projection" in config:
+                group = yaml.load(request.open())["group_name"]
+                projection = "projection_evaluator: " + self.PROJECTIONS[self.robot][group][config["projection"]]
+            else:
+                projection = "# no projection"
+            cfg = self.config_template.format(
+                **{"planner": planner, "params": params, "projection": projection}
+            )
+            cfg_file_handle, abs_path = mkstemp(suffix=".yaml", text=True)
+            os.write(cfg_file_handle, cfg.encode())
+            os.close(cfg_file_handle)
             try:
                 log_dir = abs_path + "_logs/"
                 cmdline = [
@@ -188,8 +209,8 @@ class SpeedWorker(RobowflexBaseWorker):
         projection = CSH.CategoricalHyperparameter(
             name="projection",
             choices=[
-                "joints(torso_lift_joint,shoulder_pan_joint)",
-                "link(wrist_roll_link)",
+                "shoulder",
+                "wrist",
             ],
         )
         max_nearest_neighbors = CSH.UniformIntegerHyperparameter(
