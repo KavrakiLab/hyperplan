@@ -1,5 +1,4 @@
 wheel
 hpbandster
 matplotlib
-psutil
 pyyaml

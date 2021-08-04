@@ -79,12 +79,14 @@ def csv_dump(result, path):
     all_runs = result.get_all_runs()
     id2conf = result.get_id2config_mapping()
     with open(path, "w") as csvfile:
-        print("id,budget,loss,planner,model_based", file=csvfile)
+        config = id2conf[all_runs[0].config_id]
+        config_names = ",".join([str(k) for k in config["config"]])
+        print(f"id,budget,loss,model_based,{config_names}", file=csvfile)
         for run in all_runs:
             config = id2conf[run.config_id]
             planner = config["config"]["planner"]
             model_based = int(config["config_info"]["model_based_pick"])
             print(
-                f'"{run.config_id}",{run.budget},{run.loss},{planner},{model_based}',
+                f'"{run.config_id}",{run.budget},{run.loss},{model_based},{config_values}',
                 file=csvfile,
             )

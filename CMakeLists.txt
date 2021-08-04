@@ -1,17 +1,20 @@
 cmake_minimum_required(VERSION 3.1.3)
 project(hyperplan)
 
+find_package(yaml-cpp REQUIRED)
 find_package(catkin REQUIRED)
 find_package(robowflex_ompl)
 catkin_python_setup()
 catkin_package()
 
 if(robowflex_ompl_FOUND)
-    add_executable(robowflex_helper src/robowflex_helper.cpp)
-    target_include_directories(robowflex_helper PRIVATE ${robowflex_ompl_INCLUDE_DIRS})
-    target_link_libraries(robowflex_helper ${robowflex_ompl_LIBRARIES})
-    install(PROGRAMS bin/robowflex_helper
+    foreach(rf_helper robowflex_helper robowflex_workcell_helper)
+        add_executable(${rf_helper} src/${rf_helper}.cpp)
+        target_include_directories(${rf_helper} PRIVATE ${robowflex_ompl_INCLUDE_DIRS})
+        target_link_libraries(${rf_helper} ${robowflex_ompl_LIBRARIES} yaml-cpp)
+        install(PROGRAMS bin/${rf_helper}
             DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+    endforeach()
 endif()
 
 install(PROGRAMS bin/${PROJECT_NAME}_cmdline.py

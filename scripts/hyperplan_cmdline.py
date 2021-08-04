@@ -174,7 +174,7 @@ if __name__ == "__main__":
 
     # Run an optimizer
     bohb = BOHB(
-        configspace=WorkerType.get_configspace(),
+        configspace=w.get_configspace(),
         run_id=run_id,
         host=host,
         nameserver=ns_host,

@@ -34,7 +34,7 @@
 
 # Author: Mark Moll
 
-from . import omplapp, robowflex
+from . import omplapp, robowflex, robowflex_workcell
 from .util import default_network_interface, csv_dump
 
 worker_types = {
@@ -44,4 +44,5 @@ worker_types = {
     ("robowflex", "speed"): robowflex.SpeedWorker,
     ("robowflex", "speed_kinodynamic"): robowflex.SpeedKinodynamicWorker,
     ("robowflex", "opt"): robowflex.OptWorker,
+    ("workcell", "speed"): robowflex_workcell.RobowflexWorkcellWorker,
 }
