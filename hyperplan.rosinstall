@@ -1,14 +1,10 @@
-#- git:
-#    uri: https://github.com/KavrakiLab/hyperplan.git
-#    local-name: hyperplan
-#    version: main
+- git:
+    uri: https://github.com/KavrakiLab/hyperplan.git
+    local-name: hyperplan
+    version: main
 - git:
     uri: https://github.com/KavrakiLab/robowflex.git
     local-name: robowflex
-    version: b6334e517894799ba79e8ef79cd78218e0d81676
-- git:
-    uri: https://github.com/KavrakiLab/robowflex_resources.git
-    local-name: robowflex_resources
     version: master
 - git:
     uri: https://github.com/mamoll/moveit.git

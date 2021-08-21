@@ -48,11 +48,15 @@
 
 using namespace robowflex;
 
-struct GoalDistanceFunctor
+PlannerMetric goal_distance(const PlannerPtr &planner, const SceneConstPtr &scene,
+                            const planning_interface::MotionPlanRequest &request, const PlanData &run)
 {
-    const Benchmarker::BenchmarkRequest &request;
-
-    void operator()(planning_interface::MotionPlanResponse &run, Benchmarker::Results::Run &metrics)
+    auto ompl_planner = std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(planner);
+    if (planner == nullptr)
+        ROS_FATAL("Unexpected planner!");
+    auto pdef = ompl_planner->getLastSimpleSetup()->getProblemDefinition();
+    double distance = pdef->getSolutionDifference();
+    if (distance == -1)
     {
         auto planner = std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(std::get<1>(request));
         if (planner == nullptr)
@@ -69,12 +73,7 @@ struct GoalDistanceFunctor
         }
         metrics.metrics["goal_distance"] = distance;
     }
-};
-
-Benchmarker::Results::ComputeMetricCallbackFn
-callbackFnAllocator(const Benchmarker::BenchmarkRequest &request)
-{
-    return GoalDistanceFunctor{request};
+    return distance;
 }
 
 int main(int argc, char **argv)
@@ -159,12 +158,16 @@ int main(int argc, char **argv)
     {
         unsigned int num_runs = std::atoi(argv[6]);
         std::string log_dir(argv[7]);
-        Benchmarker benchmark;
-        benchmark.setMetricCallbackFnAllocator(callbackFnAllocator);
-        benchmark.addBenchmarkingRequest(scene_file_name, scene, planner, request);
-        auto options = Benchmarker::Options(num_runs, Benchmarker::MetricOptions::LENGTH);
+        Profiler::Options options;
+        options.metrics = Profiler::LENGTH;
         options.progress_update_rate = .5;  // .5 seconds
-        benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>(log_dir)}, options);
+        Experiment experiment("robowflex_worker", options, planning_time, num_runs);
+
+        experiment.getProfiler().addMetricCallback("goal_distance", goal_distance);
+        experiment.addQuery(scene_file_name, scene, planner, request->getRequest());
+        auto dataset = experiment.benchmark(1);
+        OMPLPlanDataSetOutputter output(log_dir);
+        output.dump(*dataset);
     }
 
     return 0;

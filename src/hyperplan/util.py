@@ -84,7 +84,8 @@ def csv_dump(result, path):
         print(f"id,budget,loss,model_based,{config_names}", file=csvfile)
         for run in all_runs:
             config = id2conf[run.config_id]
-            planner = config["config"]["planner"]
+            config_values = ",".join([str(v) for k, v in config["config"].items()])
+            #planner = config["config"]["planner"]
             model_based = int(config["config_info"]["model_based_pick"])
             print(
                 f'"{run.config_id}",{run.budget},{run.loss},{model_based},{config_values}',

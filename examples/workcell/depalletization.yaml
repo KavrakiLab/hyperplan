@@ -1,0 +1,77 @@
+num_iterations: 2
+max_budget: 2
+test_budget: 180
+random_fraction: 0.33333333
+loss_function: speed
+backend: workcell
+output_dir: /tmp/hyperplan
+
+robot_type:
+  abb_irb6640:
+    urdf: "package://abb_irb6640_support/urdf/irb6640_185_280.xacro"
+    srdf: "package://abb_irb6640_moveit_config/config/abb_irb6640_185_280.srdf"
+    joint_limits: "package://abb_irb6640_moveit_config/config/joint_limits.yaml"
+    kinematics: "package://abb_irb6640_moveit_config/config/kinematics.yaml"
+    ompl_planning: "package://abb_irb6640_moveit_config/config/ompl_planning.yaml"
+    joint_group:
+      name: manipulator
+      shoulder: joints(joint_1,joint_2)
+      wrist: link(tool0)
+  motoman_es165d:
+    urdf: "package://motoman_es165d_support/urdf/es165d.xacro"
+    srdf: "package://motoman_es165d_moveit_config/config/motoman_es165d.srdf"
+    joint_limits: "package://motoman_es165d_moveit_config/config/joint_limits.yaml"
+    kinematics: "package://motoman_es165d_moveit_config/config/kinematics.yaml"
+    ompl_planning: "package://motoman_es165d_moveit_config/config/ompl_planning.yaml"
+    joint_group:
+      name: manipulator
+      shoulder: joints(joint_b,joint_l)
+      wrist: link(link_t)
+  motoman_gp180:
+    urdf: "package://motoman_gp180_support/urdf/gp180_120.xacro"
+    srdf: "package://motoman_gp180_moveit_config/config/motoman_gp180_120.srdf"
+    joint_limits: "package://motoman_gp180_moveit_config/config/joint_limits.yaml"
+    kinematics: "package://motoman_gp180_moveit_config/config/kinematics.yaml"
+    ompl_planning: "package://motoman_gp180_moveit_config/config/ompl_planning.yaml"
+    joint_group:
+      name: manipulator
+      shoulder: joints(joint_1_s,joint_2_l)
+      wrist: link(tool0)
+  motoman_gp88:
+    urdf: "package://motoman_gp88_support/urdf/gp88.xacro"
+    srdf: "package://motoman_gp88_moveit_config/config/motoman_gp88.srdf"
+    joint_limits: "package://motoman_gp88_moveit_config/config/joint_limits.yaml"
+    kinematics: "package://motoman_gp88_moveit_config/config/kinematics.yaml"
+    ompl_planning: "package://motoman_gp88_moveit_config/config/ompl_planning.yaml"
+    joint_group:
+      name: manipulator
+      shoulder: joints(joint_1_s,joint_2_l)
+      wrist: link(tool0)
+tool_offset: [0, .5]
+robot_pose:
+  x: 0
+  y: [0, 1.5]
+  z: [0, 3]
+  rotx: True
+  roty: True
+  rotz: True
+conveyor_pose:
+  x: [0, 3]
+  y: [0, 3]
+  z: [0, 2]
+  rotx: False
+  roty: False
+  rotz: True
+pallet_type:
+   3x4x10:
+   - [3,4,.3]
+   - [4,3,.3]
+   - [3,4,.3]
+   - [4,3,.3]
+   - [3,4,.3]
+   - [4,3,.3]
+   - [3,4,.3]
+   - [4,3,.3]
+   - [3,4,.3]
+   - [4,3,.3]
+

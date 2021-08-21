@@ -81,11 +81,17 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     config = yaml.load(args.config, Loader=yaml.FullLoader)
-    working_dir = (
-        Path(config["output_dir"]).resolve()
-        / Path(config["input_dir"]).name
-        / config["loss_function"]
-    )
+    if "input_dir" in config:
+        working_dir = (
+            Path(config["output_dir"]).resolve()
+            / Path(config["input_dir"]).name
+            / config["loss_function"]
+        )
+    else:
+        working_dir = (
+            Path(config["output_dir"]).resolve()
+            / config["loss_function"]
+        )
 
     run_id = args.run_id
     if run_id == -1:
