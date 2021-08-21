@@ -58,20 +58,11 @@ PlannerMetric goal_distance(const PlannerPtr &planner, const SceneConstPtr &scen
     double distance = pdef->getSolutionDifference();
     if (distance == -1)
     {
-        auto planner = std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(std::get<1>(request));
-        if (planner == nullptr)
-            ROS_FATAL("Unexpected planner!");
-        auto pdef = planner->getLastSimpleSetup()->getProblemDefinition();
-        double distance = pdef->getSolutionDifference();
-        if (distance == -1)
-        {
-            auto start = pdef->getStartState(0);
-            auto goal = std::dynamic_pointer_cast<ompl::base::GoalRegion>(pdef->getGoal());
-            if (goal == nullptr)
-                ROS_FATAL("Unexpected goal type!");
-            distance = goal->distanceGoal(start);
-        }
-        metrics.metrics["goal_distance"] = distance;
+        auto start = pdef->getStartState(0);
+        auto goal = std::dynamic_pointer_cast<ompl::base::GoalRegion>(pdef->getGoal());
+        if (goal == nullptr)
+            ROS_FATAL("Unexpected goal type!");
+        distance = goal->distanceGoal(start);
     }
     return distance;
 }
