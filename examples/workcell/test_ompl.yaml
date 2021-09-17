@@ -1,0 +1,10 @@
+manipulator:
+  longest_valid_segment_fraction: 0.005
+  planner_configs:
+  - planner
+  projection_evaluator: link(tool0)
+planner_configs:
+  planner:
+    goal_bias: 0.25965271600006845
+    range: 181.90388130776907
+    type: geometric::STRIDE

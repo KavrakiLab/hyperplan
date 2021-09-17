@@ -1,0 +1,86 @@
+rviz: 1
+conveyor_dimensions:
+- 0.6
+- 4
+- 0.7
+conveyor_pose:
+- -1
+- -1
+- .35
+- 0
+- 0
+- 1.57
+#- 0.9781800259755824
+#- 1.3821533329694111
+#- 1.2938820289301547
+#- 0.0
+#- 0.0
+#- 1.9575153944884143
+duration: 2.0
+num_runs: 0
+pallet:
+- - 3
+  - 4
+  - 0.3
+- - 4
+  - 3
+  - 0.3
+- - 3
+  - 4
+  - 0.3
+- - 4
+  - 3
+  - 0.3
+- - 3
+  - 4
+  - 0.3
+- - 4
+  - 3
+  - 0.3
+- - 3
+  - 4
+  - 0.3
+- - 4
+  - 3
+  - 0.3
+- - 3
+  - 4
+  - 0.3
+- - 4
+  - 3
+  - 0.3
+pallet_pick_percentage: 24
+robot_pose:
+- -1
+- 1
+- 0
+- 0
+- 0
+- 0
+#- 0.0
+#- 1.4531711010760398
+#- 1.8796728174613362
+#- -2.3452460233056347
+#- -2.923298067998145
+#- 0.41250977178147696
+robot_type:
+  urdf: "package://abb_irb6640_support/urdf/irb6640_185_280.xacro"
+  srdf: "package://abb_irb6640_moveit_config/config/abb_irb6640_185_280.srdf"
+  joint_limits: "package://abb_irb6640_moveit_config/config/joint_limits.yaml"
+  kinematics: "package://abb_irb6640_moveit_config/config/kinematics.yaml"
+  ompl_planning: "package://hyperplan/examples/workcell/test_ompl.yaml"
+  joint_group:
+    name: manipulator
+    shoulder: joints(joint_1,joint_2)
+    wrist: link(tool0)
+  # joint_group:
+  #   name: manipulator
+  #   shoulder: joints(joint_b,joint_l)
+  #   wrist: link(link_t)
+  # joint_limits: package://motoman_es165d_moveit_config/config/joint_limits.yaml
+  # kinematics: package://motoman_es165d_moveit_config/config/kinematics.yaml
+  # ompl_planning: /home/mmoll/ws_hyperplan/test_ompl.yaml
+  # srdf: package://motoman_es165d_moveit_config/config/motoman_es165d.srdf
+  # urdf: package://motoman_es165d_support/urdf/es165d.xacro
+#tool_offset: 0.94847109742310857
+tool_offset: 0.1

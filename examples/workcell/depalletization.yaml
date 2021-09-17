@@ -55,6 +55,7 @@ robot_pose:
   rotx: True
   roty: True
   rotz: True
+conveyor_dimensions: [.6, 4, .7]
 conveyor_pose:
   x: [0, 3]
   y: [0, 3]

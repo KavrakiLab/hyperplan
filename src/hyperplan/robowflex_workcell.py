@@ -169,6 +169,7 @@ class RobowflexWorkcellWorker(BaseWorker):
             "pallet_pick_percentage": config["pallet_pick_percentage"],
             "robot_pose": self._pose_to_list(config, "robot_pose"),
             "conveyor_pose": self._pose_to_list(config, "conveyor_pose"),
+            "conveyor_dimensions": self.config["conveyor_dimensions"],
             "duration": duration,
             "num_runs": num_runs,
         }
