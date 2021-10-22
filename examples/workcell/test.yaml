@@ -16,7 +16,7 @@ conveyor_pose:
 #- 0.0
 #- 0.0
 #- 1.9575153944884143
-duration: 2.0
+duration: 20.0
 num_runs: 0
 pallet:
 - - 3
@@ -65,14 +65,15 @@ robot_pose:
 #- 0.41250977178147696
 robot_type:
   urdf: "package://abb_irb6640_support/urdf/irb6640_185_280.xacro"
-  srdf: "package://abb_irb6640_moveit_config/config/abb_irb6640_185_280.srdf"
+  #srdf: "package://abb_irb6640_moveit_config/config/abb_irb6640_185_280.srdf"
+  srdf: "package://hyperplan/examples/workcell/abb_irb6640_185_280.srdf"
   joint_limits: "package://abb_irb6640_moveit_config/config/joint_limits.yaml"
   kinematics: "package://abb_irb6640_moveit_config/config/kinematics.yaml"
   ompl_planning: "package://hyperplan/examples/workcell/test_ompl.yaml"
   joint_group:
     name: manipulator
     shoulder: joints(joint_1,joint_2)
-    wrist: link(tool0)
+    wrist: link(link_6)
   # joint_group:
   #   name: manipulator
   #   shoulder: joints(joint_b,joint_l)
@@ -83,4 +84,4 @@ robot_type:
   # srdf: package://motoman_es165d_moveit_config/config/motoman_es165d.srdf
   # urdf: package://motoman_es165d_support/urdf/es165d.xacro
 #tool_offset: 0.94847109742310857
-tool_offset: 0.1
+tool_offset: 0.5

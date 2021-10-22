@@ -2,7 +2,7 @@ manipulator:
   longest_valid_segment_fraction: 0.005
   planner_configs:
   - planner
-  projection_evaluator: link(tool0)
+  projection_evaluator: link(link_6)
 planner_configs:
   planner:
     goal_bias: 0.25965271600006845
