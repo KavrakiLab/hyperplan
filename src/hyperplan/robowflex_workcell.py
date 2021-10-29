@@ -35,6 +35,7 @@
 # Author: Mark Moll
 
 import os
+import re
 import subprocess
 import logging
 
@@ -94,6 +95,8 @@ def resolve_path(path):
 
 
 class RobowflexWorkcellWorker(BaseWorker):
+    PROPERTIES = ["planning_time", "path_length", "trajectory_duration", "goal_distance"]
+
     def __init__(self, config, *args, **kwargs):
         super().__init__(
             config,
@@ -177,14 +180,35 @@ class RobowflexWorkcellWorker(BaseWorker):
             suffix=".yaml", mode="w", delete=(not self.keep_log_files)
         )
         yaml.dump(helper_config, cfg_file)
-        return {"loss": 0, "info": {}}
-        # write ompl_config
+
+        # run robowflex_workcell_helper tool
+        try:
+            cmdline = [
+                "rosrun",
+                "hyperplan",
+                "robowflex_workcell_helper",
+                cfg_file.name
+            ]
+            output = subprocess.run(cmdline, check=True, capture_output=True)
+        except subprocess.CalledProcessError as err:
+            logging.warning(
+                f"This command terminated with error code {err.returncode}:\n\t{err.cmd}"
+            )
+            for key in self.PROPERTIES:
+                results[key] = [np.nan]
+        else:
+            runs = [[float(x) for x in run.split(' ')[1:]] \
+                for run in re.findall('HYPERPLAN.*\n', output.stdout.decode('utf-8'))]
+            print(runs)
+            for index, key in enumerate(self.PROPERTIES):
+                results[key] = [run[index] for run in runs]
+
+        return {"loss": self.loss(budget, results), "info": results}
 
     def individual_losses(self, budget, results):
-        return [
-            quantile_with_fallback(t[:-1], budget + d[-1] * d[-1])
-            for t, d in zip(results["time"], results["goal_distance"])
-        ]
+        time = results["planning_time"][:-1]
+        goal_distance = results["goal_distance"][-1]
+        return [quantile_with_fallback(time, budget + goal_distance * goal_distance)]
 
     def progress_loss(self, budget, progress_data):
         raise Exception("Not implemented for this class")

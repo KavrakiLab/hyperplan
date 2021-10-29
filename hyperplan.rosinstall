@@ -14,3 +14,7 @@
     uri: https://github.com/mamoll/ompl.git
     local-name: ompl
     version: tmp-opt-progress-fix
+- git:
+    uri: git@github.com:MarqRazz/motoman.git
+    local-name: motoman
+    version: pr-add_es165_support

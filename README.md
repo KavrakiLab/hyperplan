@@ -84,18 +84,8 @@ TODO
 
 ### Robowflex benchmarking
 
-Find planner configuration that optimizes speed of geometric planning for the
-Fetch arm and torso using 10 scenes and corresponding motion planning queries:
+Build the hyperplan docker image so that you can easily run multiple HyperPlan workers on the same machine.
 
-    ./examples/robowflex_speed.sh
+    catkin build docker-hyperplan
 
-Note the format in the `examples/fetch` directory:
-
-- There is an equal number of scene and motion planning request YAML files. The
-  scenes are all the files that match the glob pattern `*scene*.yaml`, while
-  the requests are the files that `*request*.yaml`. The aggregate performance
-  across all the planning problems is optimized.
-- The `ompl_planning.yaml` file is a minimal template of the
-  `ompl_planning.yaml` file that is normally found in the
-  `<robot>_moveit_config` package for a robot. The only things you'd have to
-  change for a different robot are the planning group and the projection.
+Check out `./examples/robowflex-docker.sh` for an example of how to use the Docker image.

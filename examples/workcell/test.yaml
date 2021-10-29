@@ -1,4 +1,9 @@
-rviz: 1
+# use this file like so:
+#
+# rosrun hyperplan robowflex_workcell_helper `rospack find hyperplan`/examples/workcell/test.yaml
+#
+# uncomment next line to enable rviz visualization
+# rviz: 1
 conveyor_dimensions:
 - 0.6
 - 4
