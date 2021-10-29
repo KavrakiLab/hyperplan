@@ -44,6 +44,7 @@
 #include <robowflex_library/scene.h>
 #include <robowflex_library/trajectory.h>
 #include <robowflex_library/util.h>
+#include <moveit/kinematic_constraints/utils.h>
 #include <robowflex_ompl/ompl_interface.h>
 #include <ompl/base/goals/GoalRegion.h>
 #include <yaml-cpp/yaml.h>
@@ -315,29 +316,21 @@ protected:
         MotionRequestBuilder request(planner, group, "planner");
         auto home = scene->getCurrentState();
         auto setGoal = [this, &request](RobotPose &eef_pose) {
-            auto &state = robot->getScratchState();
-            auto pose = Robot::IKQuery(group, eef_pose, 1e-4, {1e-4, 1e-4, constants::pi});
-            if (!robot->setFromIK(pose, *state))
-            {
-                ROS_ERROR("Could not find IK solution for pose!");
-                return false;
-            }
-            request.setGoalConfiguration(state);
-            return true;
+            geometry_msgs::PoseStamped poseMsg;
+            poseMsg.header.frame_id = robot->getModelConst()->getModelFrame();
+            poseMsg.header.stamp = ros::Time::now();
+            poseMsg.pose = TF::poseEigenToMsg(eef_pose);
+            request.clearGoals();
+            request.getRequest().goal_constraints.push_back(
+                kinematic_constraints::constructGoalConstraints(
+                    robot->getSolverTipFrames(group)[0], poseMsg,
+                    {1e-3, 1e-3, 1e-3}, {1e-2, 1e-2, constants::pi}));
         };
-        // auto setGoal = [&request, &tip, &base](RobotPose &eef_pose) {
-        //     auto copy = eef_pose;
-        //     Eigen::Quaterniond orientation(copy.rotation());
-        //     copy.linear() = Eigen::Matrix3d::Identity();
-        //     request.setGoalRegion(tip, base, copy, Geometry::makeSphere(1e-3), orientation, {1e-3, 1e-3, constants::pi});
-        //     return true;
-        // };
 
         request.setAllowedPlanningTime(duration);
         request.setNumPlanningAttempts(1);
         request.setStartConfiguration(home);
-        if (!setGoal(pick_pose))
-            return;
+        setGoal(pick_pose);
 
         // move from home to pick
         auto res = planner->plan(scene, request.getRequest());
@@ -352,8 +345,7 @@ protected:
             scene->getScene()->setCurrentState(res.trajectory_->getLastWayPoint());
             scene->attachObject("box");
             request.useSceneStateAsStart(scene);
-            if (!setGoal(place_pose))
-                return;
+            setGoal(place_pose);
             res = planner->plan(scene, request.getRequest());
             if (res.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
             {
@@ -383,14 +375,14 @@ protected:
             else
             {
                 duration = 0.;
-                // TODO: add heuristic cost between place&home
+                // TODO: add heuristic cost-to-go between place&home
                 distance_to_goal = goalDistance(request.getRequest());
             }
         }
         else
         {
             duration = 0.;
-            // TODO: add heuristic cost between pick&place and place&home
+            // TODO: add heuristic cost-to-go between pick&place and place&home
             distance_to_goal = goalDistance(request.getRequest());
         }
 
