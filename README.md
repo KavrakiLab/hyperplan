@@ -99,3 +99,10 @@ Note the format in the `examples/fetch` directory:
   `ompl_planning.yaml` file that is normally found in the
   `<robot>_moveit_config` package for a robot. The only things you'd have to
   change for a different robot are the planning group and the projection.
+
+### Docker
+
+You can download a docker image of the version that was used for the IROS 2021 paper via these commands:
+
+    docker pull mmoll/hyperplan:latest
+    docker tag mmoll/hyperplan:latest hyperplan:latest
