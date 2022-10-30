@@ -82,9 +82,14 @@ analysis of the results.
 
 TODO
 
-### Robowflex benchmarking
+### Docker
 
-Build the hyperplan docker image so that you can easily run multiple HyperPlan workers on the same machine.
+Using a docker image makes it easier to run multiple HyperPlan workers on the same machine. You can download a docker image of the version that was used for the IROS 2021 paper via these commands:
+
+    docker pull mmoll/hyperplan:latest
+    docker tag mmoll/hyperplan:latest hyperplan:latest
+
+You can build your own hyperplan of the current version of the code like so:
 
     catkin build docker-hyperplan
 
